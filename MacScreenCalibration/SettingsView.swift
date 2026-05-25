@@ -21,7 +21,7 @@ final class SettingsWindowManager {
             backing: .buffered,
             defer: false
         )
-        win.title = "Display Filter — Settings"
+        win.title = "ScreenTune — Settings"
         win.isReleasedWhenClosed = false
         win.contentView = NSHostingView(rootView: SettingsView(calibration: calibration))
         win.center()
@@ -100,7 +100,7 @@ struct SettingsView: View {
             // ── ABOUT ────────────────────────────────────────────────────
             sectionHeader("About")
 
-            Text("Display Filter 1.0")
+            Text("ScreenTune 1.0")
                 .font(.system(size: 12))
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)

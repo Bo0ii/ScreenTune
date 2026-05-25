@@ -10,8 +10,9 @@ struct ContentView: View {
             // ── Header ──────────────────────────────────────────────────
             HStack {
                 Image(systemName: "slider.horizontal.3")
-                    .foregroundColor(.secondary)
-                Text("Display Filter")
+                    .foregroundColor(.accentColor)
+                    .imageScale(.medium)
+                Text("ScreenTune")
                     .font(.system(size: 13, weight: .semibold))
                 Spacer()
             }
@@ -31,7 +32,7 @@ struct ContentView: View {
             .padding(.horizontal, 14)
             .padding(.bottom, 8)
 
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
                 row("Red",   .red,   calibrationBinding(.red),   rgbRange)
                 row("Green", .green, calibrationBinding(.green), rgbRange)
                 row("Blue",  .blue,  calibrationBinding(.blue),  rgbRange)
@@ -44,7 +45,7 @@ struct ContentView: View {
             // ── GLOBAL section ───────────────────────────────────────────
             sectionHeader("Global")
 
-            VStack(spacing: 6) {
+            VStack(spacing: 5) {
                 row("Gamma",      .primary, $calibration.gamma,      0.5...3.5)
                 row("Contrast",   .orange,  $calibration.contrast,   0.0...2.0)
                 row("Saturation", .purple,  $calibration.saturation, 0.0...2.0)
@@ -59,7 +60,7 @@ struct ContentView: View {
 
             rampView
                 .padding(.horizontal, 14)
-                .padding(.bottom, 6)
+                .padding(.bottom, 5)
 
             swatchRow
                 .padding(.horizontal, 14)
@@ -68,17 +69,19 @@ struct ContentView: View {
             Divider()
 
             // ── Buttons ──────────────────────────────────────────────────
-            HStack(spacing: 8) {
-                Button("Reset All") { calibration.reset() }
+            HStack(spacing: 6) {
+                Button("Reset") { calibration.reset() }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
 
                 Spacer()
 
-                Button("Apply") { calibration.applyAll() }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                    .disabled(!calibration.hasUnappliedChanges)
+                Button { calibration.applyAll() } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help("Force re-apply calibration")
 
                 Button { SettingsWindowManager.shared.show(calibration: calibration) } label: {
                     Image(systemName: "gearshape")
@@ -165,7 +168,7 @@ struct ContentView: View {
                     RoundedRectangle(cornerRadius: 4)
                         .strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5)
                 }
-                .frame(height: 32)
+                .frame(height: 30)
             }
         }
     }

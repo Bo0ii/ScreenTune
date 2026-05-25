@@ -86,8 +86,6 @@ class CalibrationModel: ObservableObject {
         didSet { UserDefaults.standard.set(contrast, forKey: "contrast") }
     }
 
-    @Published var hasUnappliedChanges = false
-
     private var cancellables        = Set<AnyCancellable>()
     private let saturationOverlay   = SaturationOverlay()
     private var deskrivIsDimming    = false
@@ -109,7 +107,7 @@ class CalibrationModel: ObservableObject {
             self.applyAll()
         }
 
-        // Mark pending changes when any slider is edited
+        // Apply live on every slider change
         Publishers.MergeMany(
             $blackRed.dropFirst().map   { _ in () },
             $blackGreen.dropFirst().map { _ in () },
@@ -124,7 +122,7 @@ class CalibrationModel: ObservableObject {
             $contrast.dropFirst().map   { _ in () },
             $saturation.dropFirst().map { _ in () }
         )
-        .sink { [weak self] in self?.hasUnappliedChanges = true }
+        .sink { [weak self] in self?.applyAll() }
         .store(in: &cancellables)
 
         // ── Mouse presence tracking for KVM detection ────────────────────────────
@@ -236,7 +234,6 @@ class CalibrationModel: ObservableObject {
         applyToDisplay()
         saturationOverlay.update(saturation: saturation)
         appliedSaturation = saturation
-        hasUnappliedChanges = false
     }
 
     private func reapplyStoredGamma() {
@@ -332,7 +329,6 @@ class CalibrationModel: ObservableObject {
         restoreDisplay()
         appliedGammaR = []; appliedGammaG = []; appliedGammaB = []
         appliedSaturation = 1.0
-        hasUnappliedChanges = false
     }
 
     // MARK: - Shared helpers

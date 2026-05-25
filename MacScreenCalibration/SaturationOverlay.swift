@@ -2,16 +2,13 @@ import Cocoa
 import CoreImage
 import QuartzCore
 
-/// Full-screen overlay windows that apply a CIColorControls saturation filter
-/// to all content behind them. Uses CABackdropLayer — the same private class
-/// that NSVisualEffectView uses — which has special window-server support for
-/// capturing cross-app, cross-window background content. Falls back to
-/// CALayer.backgroundFilters if the class is unavailable.
+// Full-screen transparent windows at level 1000. Sets backgroundFilters on each
+// window's layer-backed view so the Quartz compositor applies the CIColorControls
+// saturation filter to every window below in the stack (cross-app, system-wide).
 @MainActor
 final class SaturationOverlay {
     private var overlayWindows: [NSWindow] = []
     private var filterLayers:   [CALayer]  = []
-    private var ciFilter: CIFilter?
 
     func update(saturation: Double) {
         guard abs(saturation - 1.0) > 0.004 else {
@@ -20,11 +17,10 @@ final class SaturationOverlay {
         let f = CIFilter(name: "CIColorControls")!
         f.setDefaults()
         f.setValue(Float(saturation), forKey: kCIInputSaturationKey)
-        ciFilter = f
         ensureSetup()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        filterLayers.forEach { $0.filters = [f] }
+        filterLayers.forEach { $0.backgroundFilters = [f] }
         CATransaction.commit()
         overlayWindows.forEach { $0.orderFront(nil) }
     }
@@ -33,7 +29,6 @@ final class SaturationOverlay {
         overlayWindows.forEach { $0.orderOut(nil) }
         overlayWindows.removeAll()
         filterLayers.removeAll()
-        ciFilter = nil
     }
 
     private func ensureSetup() {
@@ -56,34 +51,19 @@ final class SaturationOverlay {
         win.isOpaque             = false
         win.backgroundColor      = .clear
         win.hasShadow            = false
-        win.level                = NSWindow.Level(rawValue: 1000) // above all app windows so CABackdropLayer captures them
+        win.level                = NSWindow.Level(rawValue: 1000)
         win.ignoresMouseEvents   = true
         win.collectionBehavior   = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary]
         win.isReleasedWhenClosed = false
 
         let viewSize = screen.frame.size
         let view = NSView(frame: CGRect(origin: .zero, size: viewSize))
-        view.wantsLayer = true
-        view.layer?.isOpaque = false
-        view.layer?.backgroundColor = CGColor.clear
-
-        var filterLayer: CALayer?
-
-        if let backdropClass = NSClassFromString("CABackdropLayer") as? CALayer.Type {
-            // CABackdropLayer captures what's visually behind the window in the
-            // window server compositor (including other apps and the desktop),
-            // then applies its `filters` to that captured content.
-            let backdrop = backdropClass.init()
-            backdrop.frame = CGRect(origin: .zero, size: viewSize)
-            backdrop.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-            view.layer?.addSublayer(backdrop)
-            filterLayer = backdrop
-        } else {
-            // Fallback — works within the same window's compositor context only
-            filterLayer = view.layer
-        }
+        view.wantsLayer                = true
+        view.layerUsesCoreImageFilters = true   // required for backgroundFilters to work
+        view.layer?.isOpaque           = false
+        view.layer?.backgroundColor    = CGColor.clear
 
         win.contentView = view
-        return (win, filterLayer)
+        return (win, view.layer)
     }
 }
