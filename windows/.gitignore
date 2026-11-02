@@ -7,3 +7,4 @@ TestResults/
 publish/
 tools/preview/
 __pycache__/
+dist/

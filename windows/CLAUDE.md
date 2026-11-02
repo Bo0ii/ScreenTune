@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**ScreenTune for Windows** is a native Windows 11 tray app for display color calibration: per-screen tone curves (black / mid / white per RGB channel), warmth (color temperature), gamma, contrast, and saturation, with a master on/off switch and hold-to-compare. It is the Windows port of the macOS app (`../mac`, Swift). Same values, ranges, math and profile JSON, so profiles move between the two apps.
+**ScreenTune for Windows** is a native Windows 11 tray app for display color calibration: per-screen tone curves (black / mid / white per RGB channel), warmth (color temperature), gamma, contrast, and saturation, with a master on/off switch and hold-to-compare. It is the Windows port of the macOS app (`../mac`, Swift). Same values, ranges, math, profile JSON and fine-tune steps (`Nudge.cs` = `Nudge` in `../mac/ScreenTune/DisplaySettings.swift`), so profiles move between the two apps and both feel the same. Change both together.
 
 ## Build and test
 
@@ -13,6 +13,7 @@ dotnet build ScreenTune-Windows.sln                      # Debug, win-x64
 dotnet test tests/ScreenTune.Core.Tests                  # logic tests (xUnit)
 ./tools/publish.ps1                                      # self-contained, trimmed: publish/win-x64
 ./tools/publish.ps1 -Install                             # + %LOCALAPPDATA%\Programs\ScreenTune and a Start menu shortcut
+ISCC.exe /DSourceDir=<publish dir> /O<out> installer/ScreenTune.iss  # per-user ScreenTune-Setup.exe (what CI releases; Inno Setup 6)
 src/ScreenTune/bin/Debug/net9.0-windows10.0.22621.0/win-x64/ScreenTune.exe [--background | --quit]
 python tools/make_icons.py                               # regenerate Assets/*.ico from the macOS icon layers
 ```
@@ -49,6 +50,7 @@ src/ScreenTune/
   Views/SettingsWindow.xaml   Mica settings window: profiles, startup, full range, version
 tests/ScreenTune.Core.Tests/  Ported macOS checks + Windows logic
 tools/                        make_icons.py, publish.ps1
+installer/ScreenTune.iss      Inno Setup script: per-user install, quits a running copy first, removes the startup value on uninstall
 ```
 
 ## How the macOS design maps to Windows

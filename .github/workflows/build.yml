@@ -48,15 +48,18 @@ jobs:
       - name: Publish (self-contained, x64)
         run: ./tools/publish.ps1
 
-      - name: Zip
+      # Inno Setup ships on the windows-latest image. Per-user install, no admin prompt.
+      - name: Installer
         run: |
-          Rename-Item publish/win-x64 ScreenTune
-          Compress-Archive -Path publish/ScreenTune -DestinationPath ScreenTune-Windows-x64.zip
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          & $iscc /Q "/DAppVersion=1.0.${{ github.run_number }}" "/DSourceDir=$PWD\publish\win-x64" "/O$PWD\dist" installer\ScreenTune.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-Item dist\ScreenTune-Setup.exe | Select-Object Name, Length
 
       - uses: actions/upload-artifact@v7
         with:
           name: windows
-          path: windows/ScreenTune-Windows-x64.zip
+          path: windows/dist/ScreenTune-Setup.exe
           retention-days: 1 # the release keeps the real copy
 
   mac:
@@ -84,18 +87,30 @@ jobs:
             build
           lipo -info build/Release/ScreenTune.app/Contents/MacOS/ScreenTune
 
-      - name: Zip
-        run: ditto -c -k --keepParent build/Release/ScreenTune.app ScreenTune-macOS.zip
+      # Drag-to-Applications disk image. hdiutil on hosted runners sometimes fails
+      # with "Resource busy", so it gets a few tries.
+      - name: Disk image
+        run: |
+          mkdir -p dmg
+          ditto build/Release/ScreenTune.app dmg/ScreenTune.app
+          ln -s /Applications dmg/Applications
+          for i in 1 2 3 4 5; do
+            hdiutil create -volname ScreenTune -srcfolder dmg -fs HFS+ -format UDZO -ov ScreenTune.dmg && break
+            echo "hdiutil failed, retrying ($i)"; sleep 5
+          done
+          hdiutil verify ScreenTune.dmg
 
       - uses: actions/upload-artifact@v7
         with:
           name: mac
-          path: mac/ScreenTune-macOS.zip
+          path: mac/ScreenTune.dmg
           retention-days: 1
 
   release:
     name: Release
     needs: [windows, mac]
+    # Manual runs on other branches build and test only.
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -115,10 +130,10 @@ jobs:
             echo "Built from \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`."
             echo
             if [ -n "$MESSAGE" ]; then printf '%s\n\n' "$MESSAGE"; fi
-            echo "**Windows:** unzip and run \`ScreenTune.exe\` in the \`ScreenTune\` folder."
+            echo "**Mac:** open \`ScreenTune.dmg\` and drag ScreenTune to Applications. The app is not signed, so the first launch is blocked once: open it, then System Settings > Privacy & Security > Open Anyway. Or run \`xattr -dr com.apple.quarantine /Applications/ScreenTune.app\`."
             echo
-            echo "**Mac:** unzip and move \`ScreenTune.app\` to Applications. The app is not signed, so the first launch is blocked once: open it, then System Settings > Privacy & Security > Open Anyway. Or run \`xattr -dr com.apple.quarantine /Applications/ScreenTune.app\`."
+            echo "**Windows:** run \`ScreenTune-Setup.exe\` (no admin rights needed). It is not signed, so SmartScreen may warn: More info > Run anyway."
           } > notes.md
-          gh release create "build-$BUILD" dist/* \
+          gh release create "build-$BUILD" dist/ScreenTune.dmg dist/ScreenTune-Setup.exe \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "ScreenTune build $BUILD" --notes-file notes.md
