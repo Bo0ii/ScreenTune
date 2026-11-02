@@ -1,0 +1,122 @@
+# Every push to master builds the Mac and Windows apps and publishes both
+# as a new numbered release ("ScreenTune build N"). Pushes that only touch
+# Markdown files are skipped to save build minutes (Mac minutes count 10x on
+# private repos). Run it by hand from the Actions tab with "Run workflow".
+name: Build and release
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push cancels a build still running for an older one.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 9.0.x
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('windows/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Test
+        run: dotnet test tests/ScreenTune.Core.Tests
+
+      - name: Publish (self-contained, x64)
+        run: ./tools/publish.ps1
+
+      - name: Zip
+        run: |
+          Rename-Item publish/win-x64 ScreenTune
+          Compress-Archive -Path publish/ScreenTune -DestinationPath ScreenTune-Windows-x64.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows
+          path: windows/ScreenTune-Windows-x64.zip
+          retention-days: 1 # the release keeps the real copy
+
+  mac:
+    name: macOS
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: mac
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Test
+        run: sh Tests/run.sh
+
+      # No Apple Developer account: ad-hoc signed ("-"), so it runs on both
+      # Apple Silicon and Intel but macOS asks once before the first launch.
+      - name: Build (universal, Release)
+        run: |
+          xcodebuild -project ScreenTune.xcodeproj -target ScreenTune -configuration Release \
+            SYMROOT="$PWD/build" ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+            build
+          lipo -info build/Release/ScreenTune.app/Contents/MacOS/ScreenTune
+
+      - name: Zip
+        run: ditto -c -k --keepParent build/Release/ScreenTune.app ScreenTune-macOS.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: mac
+          path: mac/ScreenTune-macOS.zip
+          retention-days: 1
+
+  release:
+    name: Release
+    needs: [windows, mac]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+          BUILD: ${{ github.run_number }}
+        run: |
+          {
+            echo "Built from \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`."
+            echo
+            if [ -n "$MESSAGE" ]; then printf '%s\n\n' "$MESSAGE"; fi
+            echo "**Windows:** unzip and run \`ScreenTune.exe\` in the \`ScreenTune\` folder."
+            echo
+            echo "**Mac:** unzip and move \`ScreenTune.app\` to Applications. The app is not signed, so the first launch is blocked once: open it, then System Settings > Privacy & Security > Open Anyway. Or run \`xattr -dr com.apple.quarantine /Applications/ScreenTune.app\`."
+          } > notes.md
+          gh release create "build-$BUILD" dist/* \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "ScreenTune build $BUILD" --notes-file notes.md
