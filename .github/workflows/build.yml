@@ -1,7 +1,8 @@
 # Every push to master builds the Mac and Windows apps and publishes both
 # as a new numbered release ("ScreenTune build N"). Pushes that only touch
-# Markdown files are skipped to save build minutes (Mac minutes count 10x on
-# private repos). Run it by hand from the Actions tab with "Run workflow".
+# Markdown files or docs/ (README films) are skipped to save build minutes
+# (Mac minutes count 10x on private repos). Run it by hand from the Actions
+# tab with "Run workflow".
 name: Build and release
 
 on:
@@ -9,6 +10,7 @@ on:
     branches: [master]
     paths-ignore:
       - "**.md"
+      - "docs/**"
   workflow_dispatch:
 
 permissions:

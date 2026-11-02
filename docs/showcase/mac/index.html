@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      /* ---------- Devices ---------- */
+      #monitor { position: absolute; left: 304px; top: 96px; width: 1312px; height: 934px; }
+      #monitor .bezel {
+        position: absolute; left: 0; top: 0; width: 1312px; height: 832px;
+        padding: 16px; border-radius: 22px; background: #0b0b0d;
+        box-shadow: 0 0 0 2px #2c2c30, 0 0 0 3px #48484d;
+      }
+      .screen-window { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 6px; background: #000; }
+      #monitor .neck {
+        position: absolute; left: 556px; top: 834px; width: 200px; height: 82px;
+        background: linear-gradient(90deg, #1c1c1f, #3a3a3f 50%, #1c1c1f);
+        clip-path: polygon(10% 0, 90% 0, 100% 100%, 0 100%);
+      }
+      #monitor .foot {
+        position: absolute; left: 426px; top: 914px; width: 460px; height: 16px; border-radius: 8px;
+        background: linear-gradient(180deg, #4a4a50, #1e1e21);
+      }
+      #laptop { position: absolute; left: -1230px; top: 430px; width: 920px; }
+      #laptop .lid { width: 920px; height: 578px; padding: 14px 20px; border-radius: 20px 20px 6px 6px; background: #0b0b0d; box-shadow: 0 0 0 2px #2c2c30, 0 0 0 3px #48484d; }
+      #laptop .base {
+        position: relative; width: 1080px; height: 22px; margin-left: -80px; margin-top: 2px;
+        border-radius: 3px 3px 16px 16px; background: linear-gradient(180deg, #5a5a60, #2a2a2e 70%, #1a1a1d);
+      }
+      #laptop .base::before { content: ""; position: absolute; left: 470px; top: 0; width: 140px; height: 8px; border-radius: 0 0 8px 8px; background: #2a2a2e; }
+      .stage-light {
+        position: absolute; border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 70%);
+      }
+
+      /* ---------- macOS screen (points: 1512 x 945, scaled to the device) ---------- */
+      .mscreen { position: absolute; left: 0; top: 0; width: 1512px; height: 945px; transform-origin: 0 0; font-family: "Inter", system-ui, sans-serif; color: rgba(255, 255, 255, 0.9); font-size: 13px; }
+      #mscreen { transform: scale(0.8465608); }
+      #lscreen { transform: scale(0.5820106); }
+      .desk { position: absolute; inset: 0; overflow: hidden; }
+      .wall {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(60% 70% at 12% 92%, rgba(255, 164, 27, 0.85) 0%, rgba(255, 164, 27, 0) 70%),
+          radial-gradient(55% 60% at 52% 78%, rgba(255, 59, 107, 0.75) 0%, rgba(255, 59, 107, 0) 70%),
+          radial-gradient(65% 75% at 92% 8%, rgba(88, 86, 214, 0.95) 0%, rgba(88, 86, 214, 0) 72%),
+          radial-gradient(50% 50% at 30% 20%, rgba(40, 60, 160, 0.7) 0%, rgba(40, 60, 160, 0) 70%),
+          #0a0c22;
+      }
+      .wall svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .menubar {
+        position: absolute; left: 0; top: 0; right: 0; height: 26px; padding: 0 16px;
+        display: flex; align-items: center; gap: 20px; background: rgba(8, 8, 20, 0.28);
+        font-weight: 500; font-size: 13px; color: rgba(255, 255, 255, 0.94);
+      }
+      .menubar .app { font-weight: 700; }
+      .menubar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+      .mb-glyph { position: relative; width: 32px; height: 22px; display: grid; place-items: center; }
+      .mb-glyph .hl { position: absolute; inset: 0; border-radius: 6px; background: rgba(255, 255, 255, 0.24); opacity: 0; }
+      .mb-glyph svg, .menubar svg { position: relative; display: block; }
+      .dock {
+        position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+        display: flex; gap: 10px; padding: 9px; border-radius: 26px;
+        background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(18px) saturate(1.5);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+      .dock i { display: block; width: 54px; height: 54px; border-radius: 14px; position: relative; }
+      .dock i::after { content: ""; position: absolute; inset: 15px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); }
+      .dock i:nth-child(1) { background: linear-gradient(160deg, #6ac8ff, #2a6fdb); }
+      .dock i:nth-child(1)::after { inset: 14px 18px; border-radius: 4px; }
+      .dock i:nth-child(2) { background: linear-gradient(160deg, #ffd36a, #ff8a00); }
+      .dock i:nth-child(3) { background: linear-gradient(160deg, #7ef0a0, #18a957); }
+      .dock i:nth-child(3)::after { inset: 16px; border-radius: 6px; }
+      .dock i:nth-child(4) { background: linear-gradient(160deg, #ff8fb1, #e8336b); }
+      .dock i:nth-child(5) { background: linear-gradient(160deg, #c3a6ff, #6b4ce6); }
+      .dock i:nth-child(5)::after { inset: 18px 12px; border-radius: 3px; }
+      .dock i:nth-child(6) { background: linear-gradient(160deg, #f4f4f6, #b9b9c2); }
+      .dock i:nth-child(6)::after { background: #3a3a40; inset: 17px; }
+      .dock i:nth-child(7) { background: linear-gradient(160deg, #3a3a40, #121214); }
+      .dock i:nth-child(7)::after { background: #ffa41b; inset: 19px 15px; border-radius: 3px; }
+
+      /* Photo window */
+      .photo {
+        position: absolute; left: 96px; top: 96px; width: 860px; height: 600px; border-radius: 16px; overflow: hidden;
+        background: #1c1c1e; box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.16), 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+      .photo .bar { height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.85); }
+      .photo .bar b { width: 12px; height: 12px; border-radius: 50%; display: block; }
+      .photo .bar span { margin-left: 18px; }
+      .photo svg { display: block; width: 860px; height: 556px; }
+
+      /* ---------- ScreenTune panel ---------- */
+      #panel {
+        position: absolute; top: 32px; left: 1130px; width: 340px; padding: 14px;
+        display: flex; flex-direction: column; gap: 14px; border-radius: 18px;
+        background: rgba(34, 34, 38, 0.74); backdrop-filter: blur(30px) saturate(1.8);
+        box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.16), 0 20px 60px rgba(0, 0, 0, 0.5);
+        transform-origin: 50% 0;
+      }
+      .p-header { display: flex; align-items: center; gap: 8px; height: 22px; }
+      .p-title { font-weight: 700; font-size: 13px; }
+      .spacer { flex: 1; }
+      .eye { position: relative; width: 28px; height: 22px; display: grid; place-items: center; color: rgba(235, 235, 245, 0.62); }
+      .eye .hl { position: absolute; inset: 0; border-radius: 6px; background: rgba(255, 255, 255, 0.2); opacity: 0; }
+      .eye svg { position: absolute; left: 6px; top: 4px; }
+      .switch { position: relative; width: 32px; height: 18px; border-radius: 9px; background: #0a84ff; }
+      .switch::after { content: ""; position: absolute; right: 1px; top: 1px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+      .sec { font-size: 11px; font-weight: 600; color: rgba(235, 235, 245, 0.55); }
+      .group { display: flex; flex-direction: column; gap: 6px; }
+      .rows { margin: 0 -6px; display: flex; flex-direction: column; }
+      .mrow { position: relative; height: 26px; display: flex; align-items: center; gap: 8px; padding: 0 8px; border-radius: 7px; }
+      .mrow .hl { position: absolute; inset: 0; border-radius: 7px; background: rgba(255, 255, 255, 0.12); opacity: 0; }
+      .mrow > * { position: relative; }
+      .mrow .ico { width: 20px; display: grid; place-items: center; color: rgba(235, 235, 245, 0.6); }
+      .mrow .check { margin-left: auto; }
+      .mrow .key { margin-left: auto; color: rgba(235, 235, 245, 0.55); }
+      .card { padding: 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.055); display: flex; flex-direction: column; gap: 10px; }
+      .seg { position: relative; height: 22px; border-radius: 11px; background: rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(3, 1fr); font-size: 12px; font-weight: 500; }
+      .seg .pill { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 3); border-radius: 9px; background: rgba(255, 255, 255, 0.22); }
+      .seg span { position: relative; display: grid; place-items: center; }
+      .srow { display: flex; align-items: center; gap: 10px; height: 22px; }
+      .srow .lbl { width: 70px; flex: none; }
+      .slider { position: relative; flex: 1; height: 22px; }
+      .slider .track { position: absolute; left: 0; right: 0; top: 9px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.17); }
+      .slider .stub { position: absolute; left: 0; width: 11px; top: 9px; height: 4px; border-radius: 2px 0 0 2px; background: var(--tint, #0a84ff); }
+      .slider .kw { position: absolute; left: 11px; right: 11px; top: 0; bottom: 0; }
+      .slider .fill { position: absolute; left: 0; width: 100%; top: 9px; height: 4px; background: var(--tint, #0a84ff); transform-origin: 0 50%; transform: scaleX(0); }
+      .slider .knob { position: absolute; left: 0; top: 4px; width: 22px; height: 14px; margin-left: -11px; border-radius: 7px; background: #f4f4f6; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
+      .srow .val { width: 34px; flex: none; text-align: right; color: rgba(235, 235, 245, 0.55); font-variant-numeric: tabular-nums; }
+      .srow.wide .val { width: 46px; }
+      .vv { display: grid; }
+      .vv > span { grid-area: 1 / 1; text-align: right; }
+      .vv .v-blk { opacity: 0; }
+      .ramp { height: 18px; border-radius: 6px; background: linear-gradient(90deg, #000, #fff); }
+      .swatches { display: flex; gap: 6px; }
+      .swatches i { flex: 1; height: 26px; border-radius: 6px; }
+      .divider { height: 1px; background: rgba(255, 255, 255, 0.12); }
+      .actions { margin: -4px -6px 0; display: flex; flex-direction: column; }
+
+      /* Whole-screen effects: what the gamma table does to every pixel. */
+      .fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+      #mwarm { background: #ffad5c; mix-blend-mode: multiply; }
+      #mlift { background: #360b0b; mix-blend-mode: lighten; }
+      #mcursor { position: absolute; left: 0; top: 0; width: 26px; height: 36px; opacity: 0; }
+      #mcursor svg { width: 26px; height: 36px; overflow: visible; }
+      #mcursor .ring { position: absolute; left: -14px; top: -16px; width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.85); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="mac" data-start="0" data-duration="18" data-width="1920" data-height="1080" data-fps="25">
+      <div id="bg" class="layer clip" data-start="0" data-duration="18" data-track-index="0">
+        <div class="glow" id="glow-a"></div>
+        <div class="glow" id="glow-b"></div>
+      </div>
+
+      <div id="world" class="clip" data-start="0" data-duration="18" data-track-index="1">
+        <div class="stage-light" style="left: 120px; top: 900px; width: 1680px; height: 260px"></div>
+
+        <div id="laptop">
+          <div class="lid"><div class="screen-window"><div id="lscreen" class="mscreen"></div></div></div>
+          <div class="base"></div>
+        </div>
+
+        <div id="monitor">
+          <div class="bezel">
+            <div class="screen-window">
+              <div id="mscreen" class="mscreen">
+                <div class="photo">
+                  <div class="bar"><b style="background: #ff5f57"></b><b style="background: #febc2e"></b><b style="background: #28c840"></b><span>Lake at dusk.heic</span></div>
+                  <svg viewBox="0 0 860 556" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#1f2a5c" />
+                        <stop offset="0.42" stop-color="#5e4a8e" />
+                        <stop offset="0.72" stop-color="#e9739a" />
+                        <stop offset="1" stop-color="#ffc27a" />
+                      </linearGradient>
+                      <radialGradient id="sunglow" cx="0.5" cy="0.5" r="0.5">
+                        <stop offset="0" stop-color="#fff1c9" stop-opacity="0.9" />
+                        <stop offset="1" stop-color="#ff9f5a" stop-opacity="0" />
+                      </radialGradient>
+                      <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#6b4f86" />
+                        <stop offset="1" stop-color="#14112a" />
+                      </linearGradient>
+                    </defs>
+                    <rect width="860" height="330" fill="url(#sky)" />
+                    <circle cx="520" cy="300" r="170" fill="url(#sunglow)" />
+                    <circle cx="520" cy="300" r="44" fill="#fff3d2" />
+                    <path d="M0 260 L120 190 L210 240 L330 150 L450 250 L560 200 L700 260 L800 210 L860 240 L860 330 L0 330 Z" fill="#4b3c74" />
+                    <path d="M0 300 L90 250 L180 290 L300 230 L420 300 L540 270 L640 310 L760 260 L860 300 L860 330 L0 330 Z" fill="#2c2550" />
+                    <rect y="330" width="860" height="226" fill="url(#lake)" />
+                    <g fill="#ffd79a" opacity="0.55">
+                      <rect x="470" y="342" width="100" height="5" rx="2.5" />
+                      <rect x="488" y="360" width="64" height="4" rx="2" />
+                      <rect x="500" y="378" width="40" height="3" rx="1.5" />
+                      <rect x="508" y="396" width="24" height="3" rx="1.5" />
+                    </g>
+                    <path d="M0 556 L0 470 Q 120 430 240 470 T 480 480 L 480 556 Z" fill="#0d0b1c" />
+                  </svg>
+                </div>
+
+                <div id="panel">
+                  <div class="p-header">
+                    <span class="p-title">ScreenTune</span>
+                    <span class="spacer"></span>
+                    <span class="eye" id="eye">
+                      <i class="hl"></i>
+                      <svg id="eye-open" width="17" height="14" viewBox="0 0 17 14"><path d="M8.5 2C4.8 2 2.1 4.6 1 7c1.1 2.4 3.8 5 7.5 5S14.9 9.4 16 7c-1.1-2.4-3.8-5-7.5-5Z" fill="none" stroke="currentColor" stroke-width="1.5" /><circle cx="8.5" cy="7" r="2.4" fill="currentColor" /></svg>
+                      <svg id="eye-fill" width="17" height="14" viewBox="0 0 17 14" style="opacity: 0"><path d="M8.5 2C4.8 2 2.1 4.6 1 7c1.1 2.4 3.8 5 7.5 5S14.9 9.4 16 7c-1.1-2.4-3.8-5-7.5-5Z" fill="#fff" /><circle cx="8.5" cy="7" r="2.4" fill="#222" /></svg>
+                    </span>
+                    <span class="switch"></span>
+                  </div>
+
+                  <div class="group" id="screens">
+                    <div class="sec">Screen</div>
+                    <div class="rows">
+                      <div class="mrow" id="row-builtin">
+                        <i class="hl"></i>
+                        <span class="ico"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="3" y="1" width="12" height="8" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M1 10.6h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span>
+                        <span>Built-in Display</span>
+                        <span class="check" id="check-builtin" style="opacity: 0"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.6 4 7.6 10 1" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+                      </div>
+                      <div class="mrow" id="row-external">
+                        <i class="hl"></i>
+                        <span class="ico"><svg width="16" height="14" viewBox="0 0 16 14"><rect x="1" y="1" width="14" height="9" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.4" /><path d="M5.5 13h5M8 10v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg></span>
+                        <span>External Display</span>
+                        <span class="check" id="check-external"><svg width="11" height="9" viewBox="0 0 11 9"><path d="M1 4.6 4 7.6 10 1" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="group" id="card-tone">
+                    <div class="sec">Tone</div>
+                    <div class="card">
+                      <div class="seg" id="seg"><i class="pill" id="seg-pill"></i><span id="seg-black">Black</span><span>Middle</span><span>White</span></div>
+                      <div class="srow" style="--tint: #ff453a"><span class="lbl">Red</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="red-fill"></i><i class="knob" id="red-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.0<span id="red-d">0</span></span></span></div>
+                      <div class="srow" style="--tint: #32d74b"><span class="lbl">Green</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="green-fill"></i><i class="knob" id="green-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.00</span></span></div>
+                      <div class="srow" style="--tint: #0a84ff"><span class="lbl">Blue</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="blue-fill"></i><i class="knob" id="blue-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.00</span></span></div>
+                    </div>
+                  </div>
+
+                  <div class="group" id="card-adjust">
+                    <div class="sec">Adjust</div>
+                    <div class="card">
+                      <div class="srow wide" style="--tint: #ff9f0a"><span class="lbl">Warmth</span><span class="slider" id="warm-slider"><i class="track"></i><i class="stub"></i><span class="kw" id="warm-kw" data-f="0"><i class="fill" id="warm-fill"></i><i class="knob" id="warm-knob"></i></span></span><span class="val"><span id="warm-v">6500</span>K</span></div>
+                      <div class="srow"><span class="lbl">Gamma</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5667"><i class="fill"></i><i class="knob"></i></span></span><span class="val">2.20</span></div>
+                      <div class="srow"><span class="lbl">Contrast</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="val">1.00</span></div>
+                      <div class="srow"><span class="lbl">Saturation</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="val">1.00</span></div>
+                    </div>
+                  </div>
+
+                  <div class="group">
+                    <div class="sec">Preview</div>
+                    <div class="card" style="gap: 6px">
+                      <div class="ramp"></div>
+                      <div class="swatches"><i style="background: #fff"></i><i style="background: #f00"></i><i style="background: #0f0"></i><i style="background: #00f"></i><i style="background: #000"></i></div>
+                    </div>
+                  </div>
+
+                  <div class="divider"></div>
+                  <div class="actions">
+                    <div class="mrow"><span>Reset External Display</span></div>
+                    <div class="mrow"><span>Settings…</span><span class="key">⌘,</span></div>
+                    <div class="mrow"><span>Quit ScreenTune</span><span class="key">⌘Q</span></div>
+                  </div>
+                </div>
+
+                <div class="fx" id="mwarm"></div>
+                <div class="fx" id="mlift"></div>
+                <div id="mcursor">
+                  <i class="ring"></i>
+                  <svg viewBox="0 0 26 36"><path d="M3 2 L3 27 L9.2 21.2 L13.4 31 L17.4 29.3 L13.3 19.8 L21.6 19.8 Z" fill="#111" stroke="#fff" stroke-width="2" stroke-linejoin="round" /></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="neck"></div>
+          <div class="foot"></div>
+        </div>
+      </div>
+
+      <div id="scrim" class="layer clip" data-start="0" data-duration="18" data-track-index="2" style="opacity: 0"></div>
+
+      <div id="cap1" class="caption clip" data-start="0" data-duration="18" data-track-index="3" style="opacity: 0"><h3>Warmth, live.</h3><p>The whole screen follows the slider.</p></div>
+      <div id="cap2" class="caption clip" data-start="0" data-duration="18" data-track-index="4" style="opacity: 0"><h3>Black, middle and white.</h3><p>Every point, every color channel.</p></div>
+      <div id="cap3" class="caption clip" data-start="0" data-duration="18" data-track-index="5" style="opacity: 0"><h3>Every screen, its own look.</h3><p>Settings stay with each display.</p></div>
+      <div id="cap4" class="caption clip" data-start="0" data-duration="18" data-track-index="6" style="opacity: 0"><h3>Hold to compare.</h3><p>The original colors, for as long as you hold.</p></div>
+
+      <div id="title" class="layer clip" data-start="0" data-duration="18" data-track-index="7">
+        <div class="line" data-words>Every screen.</div>
+        <div class="line" data-words data-brand="tuned.">Perfectly tuned.</div>
+      </div>
+
+      <div id="outro" class="layer clip" data-start="0" data-duration="18" data-track-index="8" style="opacity: 0">
+        <div class="icon">
+          <svg viewBox="0 0 1024 1024">
+            <defs>
+              <linearGradient id="ic-bgfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2e3a" /><stop offset="1" stop-color="#15161c" /></linearGradient>
+              <linearGradient id="ic-scr" x1="0" y1="0" x2="1" y2="0.35"><stop offset="0" stop-color="#FFA41B" /><stop offset="0.48" stop-color="#FF3B6B" /><stop offset="1" stop-color="#5856D6" /></linearGradient>
+              <linearGradient id="ic-spec" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.34" /><stop offset="0.5" stop-color="#fff" stop-opacity="0" /></linearGradient>
+              <linearGradient id="ic-neck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7C7C82" /><stop offset="1" stop-color="#A9A9B0" /></linearGradient>
+              <linearGradient id="ic-base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D8D8DE" /><stop offset="1" stop-color="#B4B4BB" /></linearGradient>
+            </defs>
+            <g id="ic-bg"><rect width="1024" height="1024" rx="232" fill="url(#ic-bgfill)" /><rect x="2" y="2" width="1020" height="1020" rx="230" fill="none" stroke="#fff" stroke-opacity="0.12" stroke-width="4" /></g>
+            <g id="ic-stand"><path d="M474 690 H550 L566 762 H458 Z" fill="url(#ic-neck)" /><rect x="346" y="752" width="332" height="40" rx="20" fill="url(#ic-base)" /></g>
+            <g id="ic-screen"><rect x="162" y="226" width="700" height="460" rx="52" fill="url(#ic-scr)" /><rect x="162" y="226" width="700" height="460" rx="52" fill="url(#ic-spec)" /></g>
+            <g id="ic-track"><rect x="262" y="432" width="500" height="48" rx="24" fill="#fff" fill-opacity="0.5" /></g>
+            <g id="ic-knob"><circle cx="636" cy="466" r="76" fill="#000" fill-opacity="0.16" /><circle cx="636" cy="456" r="74" fill="#fff" /></g>
+          </svg>
+        </div>
+        <div class="wordmark"><span id="wm-name">ScreenTune</span><span class="for" id="wm-for">for Mac</span></div>
+        <div class="tagline" id="tagline">Color tuning for every display, right from the menu bar.</div>
+      </div>
+    </div>
+
+    <template id="desk-tpl">
+      <div class="desk">
+        <div class="wall">
+          <svg viewBox="0 0 1512 945" preserveAspectRatio="none">
+            <path d="M0 640 C 260 560, 520 700, 820 620 S 1300 520, 1512 600 L1512 945 L0 945 Z" fill="#ff6a3d" fill-opacity="0.22" />
+            <path d="M0 760 C 300 690, 640 820, 980 740 S 1380 660, 1512 720 L1512 945 L0 945 Z" fill="#2a1450" fill-opacity="0.45" />
+            <path d="M0 860 C 380 800, 760 900, 1100 840 S 1420 800, 1512 830 L1512 945 L0 945 Z" fill="#0b0820" fill-opacity="0.55" />
+          </svg>
+        </div>
+        <div class="menubar">
+          <span class="app">Finder</span><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span>
+          <span class="right">
+            <span class="mb-glyph"><i class="hl"></i><svg width="18" height="14" viewBox="0 0 18 14"><g stroke="#fff" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 2.5h15M1.5 7h15M1.5 11.5h15" /></g><g fill="#fff" stroke="#14141e" stroke-width="1"><circle cx="12" cy="2.5" r="2.2" /><circle cx="5.5" cy="7" r="2.2" /><circle cx="10" cy="11.5" r="2.2" /></g></svg></span>
+            <svg width="17" height="13" viewBox="0 0 17 13"><path d="M1.5 4.6a10 10 0 0 1 14 0M4 7.3a6.4 6.4 0 0 1 9 0M6.5 9.9a2.8 2.8 0 0 1 4 0" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" /><circle cx="8.5" cy="11.6" r="1.1" fill="#fff" /></svg>
+            <svg width="26" height="12" viewBox="0 0 26 12"><rect x="0.75" y="0.75" width="21.5" height="10.5" rx="3" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1.2" /><rect x="2.5" y="2.5" width="15" height="7" rx="1.6" fill="#fff" /><rect x="23.4" y="4" width="1.8" height="4" rx="0.9" fill="#fff" fill-opacity="0.6" /></svg>
+            <span>Mon Nov 2&nbsp;&nbsp;9:41</span>
+          </span>
+        </div>
+        <div class="dock"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </template>
+
+    <script src="shared.js"></script>
+    <script>
+      // ---------- Build the static scene (synchronous, deterministic) ----------
+      const $ = (s) => document.querySelector(s);
+      const tpl = document.getElementById("desk-tpl");
+      const ms = $("#mscreen");
+      const ls = $("#lscreen");
+      ms.insertBefore(tpl.content.cloneNode(true), ms.firstChild);
+      ls.appendChild(tpl.content.cloneNode(true));
+      ST.words($("#title"));
+
+      // The panel opens centered under the menu bar icon, like the real app.
+      const glyph = ms.querySelector(".mb-glyph");
+      const panel = $("#panel");
+      panel.style.left = ST.local(glyph, ms).x - 170 + "px";
+
+      const world = $("#world");
+      const P = {
+        monitor: ST.pos($("#monitor .bezel"), world),
+        adjust: ST.pos($("#card-adjust"), world),
+        tone: ST.pos($("#card-tone"), world),
+        screens: ST.pos($("#screens"), world),
+        header: ST.pos($("#panel .p-header"), world),
+        lapLeft: ST.pos($("#laptop .base"), world, 0, 0.5),
+        monRight: ST.pos($("#monitor .bezel"), world, 1, 0.5),
+      };
+      const spanW = P.monRight.x - P.lapLeft.x;
+      const both = { x: (P.monRight.x + P.lapLeft.x) / 2, y: P.monitor.y + 60 };
+
+      const CAM = {
+        wide: ST.cam(0.86, P.monitor, 960, 520),
+        enter: ST.cam(0.74, P.monitor, 960, 600),
+        adjust: ST.cam(2.35, P.adjust, 1180, 470),
+        tone: ST.cam(2.35, P.tone, 1180, 520),
+        screens: ST.cam(2.35, P.screens, 1180, 470),
+        both: ST.cam(Math.min(1640 / spanW, 0.9), both, 960, 480),
+        compare: ST.cam(1.45, P.header, 1360, 300),
+        out: ST.cam(1.6, P.header, 1360, 300),
+      };
+
+      // Cursor targets in screen points. The arrow tip sits at (3, 2) in its box.
+      const C = (el, fx = 0.5, fy = 0.5) => {
+        const p = ST.local(typeof el === "string" ? $(el) : el, ms, fx, fy);
+        return { x: p.x - 3, y: p.y - 2 };
+      };
+      const kwW = ST.local($("#warm-kw"), ms, 1, 0.5).x - ST.local($("#warm-kw"), ms, 0, 0.5).x;
+      const redKw = $("#red-knob").parentElement;
+      const redKwW = ST.local(redKw, ms, 1, 0.5).x - ST.local(redKw, ms, 0, 0.5).x;
+      const K = {
+        start: { x: 820, y: 560 },
+        glyph: C(glyph),
+        warm: C("#warm-knob"),
+        seg: C("#seg-black"),
+        redAtMid: C("#red-knob"),
+        builtin: C("#row-builtin", 0.32, 0.5),
+        eye: C("#eye"),
+      };
+      const redLeft = { x: K.redAtMid.x - redKwW * 0.5, y: K.redAtMid.y };
+      const segStep = $("#seg").getBoundingClientRect().width / ST._k(world) / 0.8465608;
+
+      // ---------- Timeline ----------
+      const tl = gsap.timeline({ paused: true });
+      const W = 0.62; // warmth slider position: 6500K -> 4300K
+
+      // Initial states (applied immediately so frame 0 is right)
+      gsap.set(world, { ...CAM.enter, transformOrigin: "0 0", opacity: 0, filter: "blur(22px)" });
+      gsap.set("#mcursor", { x: K.start.x, y: K.start.y });
+      gsap.set(panel, { opacity: 0, y: -10, scale: 0.97, filter: "blur(6px)" });
+      gsap.set("#seg-pill", { x: (segStep - 4) / 3 }); // Middle selected
+      gsap.set(".glow", { opacity: 0 });
+      document.querySelectorAll(".kw").forEach((kw) => {
+        const f = +kw.dataset.f;
+        gsap.set(kw.querySelector(".knob"), { x: kw.offsetWidth * f });
+        gsap.set(kw.querySelector(".fill"), { scaleX: f });
+      });
+      // Slider knobs move with transforms (seek-safe): knob x and fill scaleX together.
+      const slide = (id, f, duration, ease, at) => {
+        const kw = $(`#${id}-knob`).parentElement;
+        tl.to(`#${id}-knob`, { x: kw.offsetWidth * f, duration, ease }, at);
+        tl.to(`#${id}-fill`, { scaleX: f, duration, ease }, at);
+      };
+
+      // Ambient: glows breathe for the whole film (finite repeats).
+      tl.to(".glow", { opacity: 1, duration: 1.6, ease: "sine.inOut" }, 0.1);
+      tl.to("#glow-a", { scale: 1.12, x: 60, duration: 4.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
+      tl.to("#glow-b", { scale: 1.1, x: -50, y: 30, duration: 4.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
+
+      // 1. Headline
+      tl.from("#title .line:nth-child(1) .w", { y: 36, opacity: 0, filter: "blur(16px)", duration: 0.9, ease: "power3.out", stagger: 0.14 }, 0.25);
+      tl.from("#title .line:nth-child(2) .w", { y: 36, opacity: 0, filter: "blur(16px)", duration: 1.0, ease: "expo.out", stagger: 0.16 }, 0.95);
+
+      // 2. Title dissolves forward, the desk rises out of the void
+      tl.to("#title", { scale: 1.08, opacity: 0, filter: "blur(18px)", duration: 0.75, ease: "power2.in" }, 2.5);
+      tl.to(world, { ...CAM.wide, opacity: 1, filter: "blur(0px)", duration: 1.3, ease: "expo.out" }, 2.75);
+
+      // 3. Click the menu bar icon, the panel drops in
+      tl.to("#mcursor", { opacity: 1, duration: 0.3, ease: "power1.out" }, 3.55);
+      tl.to("#mcursor", { x: K.glyph.x, y: K.glyph.y, duration: 0.95, ease: "power3.inOut" }, 3.6);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.09, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 4.55);
+      tl.to("#mscreen .mb-glyph .hl", { opacity: 1, duration: 0.12, ease: "none" }, 4.6);
+      tl.to(panel, { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 4.62);
+
+      // 4. Camera glides in; drag Warmth, the whole screen warms
+      tl.to(world, { ...CAM.adjust, duration: 1.35, ease: "power3.inOut" }, 4.85);
+      tl.to("#mcursor", { x: K.warm.x, y: K.warm.y, duration: 0.7, ease: "power3.inOut" }, 5.7);
+      tl.to("#scrim", { opacity: 1, duration: 0.6, ease: "power1.out" }, 6.0);
+      tl.from("#cap1", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 6.25);
+      tl.to("#cap1", { opacity: 1, duration: 0.5, ease: "power1.out" }, 6.25);
+      tl.to("#mcursor svg", { scale: 0.9, duration: 0.1, ease: "power2.out", transformOrigin: "3px 2px" }, 6.4);
+      slide("warm", W, 1.6, "power2.inOut", 6.5);
+      tl.to("#mcursor", { x: K.warm.x + kwW * W, duration: 1.6, ease: "power2.inOut" }, 6.5);
+      tl.fromTo("#warm-v", { innerText: 6500 }, { innerText: 4300, snap: { innerText: 50 }, duration: 1.6, ease: "power2.inOut" }, 6.5);
+      tl.to("#mwarm", { opacity: 0.55, duration: 1.6, ease: "power2.inOut" }, 6.5);
+      tl.to("#mcursor svg", { scale: 1, duration: 0.12, ease: "power2.out" }, 8.15);
+
+      // 5. Tone: switch to Black, lift red in the shadows
+      tl.to("#cap1", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 8.45);
+      tl.to(world, { ...CAM.tone, duration: 1.0, ease: "power3.inOut" }, 8.45);
+      tl.to("#mcursor", { x: K.seg.x, y: K.seg.y, duration: 0.75, ease: "power3.inOut" }, 8.6);
+      tl.from("#cap2", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 8.95);
+      tl.to("#cap2", { opacity: 1, duration: 0.5, ease: "power1.out" }, 8.95);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 9.38);
+      tl.to("#seg-pill", { x: 0, duration: 0.32, ease: "back.out(1.4)" }, 9.45);
+      ["red", "green", "blue"].forEach((c) => {
+        slide(c, 0, 0.3, "power3.out", 9.47);
+      });
+      tl.to(".v-mid", { opacity: 0, duration: 0.12, ease: "none" }, 9.47);
+      tl.to(".v-blk", { opacity: 1, duration: 0.12, ease: "none" }, 9.5);
+      tl.to("#mcursor", { x: redLeft.x, y: redLeft.y, duration: 0.5, ease: "power3.inOut" }, 9.7);
+      slide("red", 0.08, 0.8, "power2.inOut", 10.25);
+      tl.to("#mcursor", { x: redLeft.x + redKwW * 0.08, duration: 0.8, ease: "power2.inOut" }, 10.25);
+      tl.fromTo("#red-d", { innerText: 0 }, { innerText: 4, snap: { innerText: 1 }, duration: 0.8, ease: "power2.inOut" }, 10.25);
+      tl.to("#mlift", { opacity: 1, duration: 0.8, ease: "power2.inOut" }, 10.25);
+
+      // 6. Pick the built-in display: its own settings come back
+      tl.to("#cap2", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 11.05);
+      tl.to(world, { ...CAM.screens, duration: 0.85, ease: "power3.inOut" }, 11.05);
+      tl.to("#mcursor", { x: K.builtin.x, y: K.builtin.y, duration: 0.7, ease: "power3.inOut" }, 11.15);
+      tl.to("#row-builtin .hl", { opacity: 1, duration: 0.1, ease: "none" }, 11.75);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 11.8);
+      tl.to("#check-external", { opacity: 0, duration: 0.15, ease: "none" }, 11.9);
+      tl.fromTo("#check-builtin", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 11.9);
+      tl.to("#row-builtin .hl", { opacity: 0, duration: 0.3, ease: "power1.out" }, 12.05);
+      slide("warm", 0, 0.45, "power3.out", 11.95);
+      tl.fromTo("#warm-v", { innerText: 4300 }, { innerText: 6500, snap: { innerText: 50 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 11.95);
+      slide("red", 0, 0.45, "power3.out", 11.95);
+      tl.fromTo("#red-d", { innerText: 4 }, { innerText: 0, snap: { innerText: 1 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 11.95);
+
+      // 7. Pull back: two displays, two looks
+      tl.to(world, { ...CAM.both, duration: 1.25, ease: "power3.inOut" }, 12.25);
+      tl.to("#mcursor", { opacity: 0, duration: 0.3, ease: "power1.out" }, 12.3);
+      tl.from("#cap3", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 12.6);
+      tl.to("#cap3", { opacity: 1, duration: 0.5, ease: "power1.out" }, 12.6);
+
+      // 8. Hold to compare
+      tl.to("#cap3", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 13.75);
+      tl.to(world, { ...CAM.compare, duration: 1.05, ease: "power3.inOut" }, 13.7);
+      tl.set("#mcursor", { x: K.eye.x - 120, y: K.eye.y + 90 }, 13.9);
+      tl.to("#mcursor", { opacity: 1, x: K.eye.x, y: K.eye.y, duration: 0.6, ease: "power3.out" }, 14.0);
+      tl.from("#cap4", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 14.1);
+      tl.to("#cap4", { opacity: 1, duration: 0.5, ease: "power1.out" }, 14.1);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", transformOrigin: "3px 2px" }, 14.6);
+      tl.to("#eye .hl", { opacity: 1, duration: 0.08, ease: "none" }, 14.62);
+      tl.to("#eye-fill", { opacity: 1, duration: 0.08, ease: "none" }, 14.62);
+      tl.to("#eye-open", { opacity: 0, duration: 0.08, ease: "none" }, 14.62);
+      tl.to("#mwarm", { opacity: 0, duration: 0.14, ease: "power1.out" }, 14.64);
+      tl.to("#mcursor .ring", { opacity: 0.9, scale: 1, duration: 0.01 }, 14.62);
+      tl.fromTo("#mcursor .ring", { scale: 0.4 }, { scale: 1.6, opacity: 0, duration: 0.6, ease: "power2.out", immediateRender: false }, 14.64);
+      tl.to("#mcursor svg", { scale: 1, duration: 0.1, ease: "power2.out" }, 15.35);
+      tl.to("#eye .hl", { opacity: 0, duration: 0.12, ease: "none" }, 15.35);
+      tl.to("#eye-fill", { opacity: 0, duration: 0.12, ease: "none" }, 15.35);
+      tl.to("#eye-open", { opacity: 1, duration: 0.12, ease: "none" }, 15.35);
+      tl.to("#mwarm", { opacity: 0.55, duration: 0.2, ease: "power1.out" }, 15.36);
+
+      // 9. Outro: the icon builds itself, then the name
+      tl.to("#cap4", { opacity: 0, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 15.6);
+      tl.to("#scrim", { opacity: 0, duration: 0.5, ease: "power1.in" }, 15.6);
+      tl.to(world, { ...CAM.out, opacity: 0, filter: "blur(20px)", duration: 0.8, ease: "power2.in" }, 15.6);
+      tl.to("#outro", { opacity: 1, duration: 0.01 }, 15.95);
+      tl.from("#ic-bg", { scale: 0.55, opacity: 0, duration: 0.7, ease: "back.out(1.5)", svgOrigin: "512 512" }, 15.95);
+      tl.from("#ic-screen", { y: 60, opacity: 0, duration: 0.6, ease: "expo.out" }, 16.1);
+      tl.from("#ic-stand", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 16.2);
+      tl.from("#ic-track", { scaleX: 0, opacity: 0, duration: 0.5, ease: "power3.out", svgOrigin: "262 456" }, 16.3);
+      tl.from("#ic-knob", { x: -330, opacity: 0, duration: 0.8, ease: "back.out(1.6)" }, 16.38);
+      tl.from("#wm-name", { y: 40, opacity: 0, filter: "blur(14px)", duration: 0.7, ease: "expo.out" }, 16.45);
+      tl.from("#wm-for", { y: 40, opacity: 0, filter: "blur(14px)", duration: 0.7, ease: "power3.out" }, 16.6);
+      tl.from("#tagline", { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" }, 16.8);
+      tl.to("#outro", { opacity: 0, duration: 0.45, ease: "power2.in" }, 17.5);
+      tl.to(".glow", { opacity: 0, duration: 0.6, ease: "power1.in" }, 17.35);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["mac"] = tl;
+    </script>
+  </body>
+</html>
