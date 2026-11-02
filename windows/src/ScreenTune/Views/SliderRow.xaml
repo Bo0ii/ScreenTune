@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="ScreenTune.Views.SliderRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid ColumnSpacing="4">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="72" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition x:Name="ValueColumn" Width="40" />
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="TitleText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <RepeatButton
+            x:Name="DecreaseButton"
+            Grid.Column="1"
+            Click="OnDecreaseClick"
+            Style="{StaticResource NudgeButtonStyle}">
+            <FontIcon FontSize="10" Glyph="&#xE738;" />
+        </RepeatButton>
+        <Slider
+            x:Name="Slider"
+            Grid.Column="2"
+            VerticalAlignment="Center"
+            IsThumbToolTipEnabled="False"
+            PointerWheelChanged="OnSliderWheel"
+            ValueChanged="OnSliderValueChanged" />
+        <RepeatButton
+            x:Name="IncreaseButton"
+            Grid.Column="3"
+            Click="OnIncreaseClick"
+            Style="{StaticResource NudgeButtonStyle}">
+            <FontIcon FontSize="10" Glyph="&#xE710;" />
+        </RepeatButton>
+        <TextBlock
+            x:Name="ValueText"
+            Grid.Column="4"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    </Grid>
+</UserControl>

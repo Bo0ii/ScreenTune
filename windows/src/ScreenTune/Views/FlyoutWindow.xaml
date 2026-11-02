@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ScreenTune.Views.FlyoutWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    xmlns:views="using:ScreenTune.Views"
+    Title="ScreenTune">
+
+    <Grid x:Name="Root">
+        <ScrollViewer
+            x:Name="Scroller"
+            HorizontalScrollMode="Disabled"
+            HorizontalScrollBarVisibility="Disabled"
+            VerticalScrollBarVisibility="Auto">
+            <!-- Top-aligned so the scroller does not stretch it to the window height (the window sizes to it). -->
+            <StackPanel x:Name="Body" Padding="16,12,16,8" VerticalAlignment="Top" Spacing="12">
+
+                <!-- Header: title, hold-to-compare, master switch (like the Wi-Fi flyout) -->
+                <Grid ColumnSpacing="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="ScreenTune" />
+                    <Button
+                        x:Name="CompareButton"
+                        Grid.Column="1"
+                        AutomationProperties.Name="Compare with original colors"
+                        Style="{StaticResource SubtleIconButtonStyle}"
+                        ToolTipService.ToolTip="Hold to see the original colors">
+                        <FontIcon x:Name="CompareGlyph" FontSize="16" Glyph="&#xE890;" />
+                    </Button>
+                    <ToggleSwitch
+                        x:Name="EnabledSwitch"
+                        Grid.Column="2"
+                        MinWidth="0"
+                        Margin="8,0,-12,0"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="Tuning"
+                        OffContent=""
+                        OnContent=""
+                        Toggled="OnEnabledToggled" />
+                </Grid>
+
+                <!-- Screen picker, only with 2+ screens -->
+                <StackPanel x:Name="ScreenSection" Spacing="4" Visibility="Collapsed">
+                    <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Screen" />
+                    <StackPanel x:Name="ScreenList" Margin="-12,0,-12,0" />
+                </StackPanel>
+
+                <!-- One-line status: HDR on, or Windows limited the curve -->
+                <Grid x:Name="NotePanel" ColumnSpacing="8" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <FontIcon
+                        x:Name="NoteGlyph"
+                        Margin="0,1,0,0"
+                        VerticalAlignment="Top"
+                        FontSize="14"
+                        Glyph="&#xE7BA;" />
+                    <TextBlock x:Name="NoteText" Grid.Column="1" Style="{StaticResource NoteTextStyle}" />
+                </Grid>
+
+                <ContentControl
+                    x:Name="CardsHost"
+                    HorizontalContentAlignment="Stretch"
+                    IsTabStop="False">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Tone" />
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="0">
+                                    <toolkit:Segmented
+                                        x:Name="TonePoint"
+                                        Margin="0,4,0,4"
+                                        HorizontalAlignment="Stretch"
+                                        AutomationProperties.Name="Tone point"
+                                        BorderThickness="0"
+                                        SelectedIndex="1">
+                                        <toolkit:SegmentedItem Content="Black" />
+                                        <toolkit:SegmentedItem Content="Middle" />
+                                        <toolkit:SegmentedItem Content="White" />
+                                    </toolkit:Segmented>
+                                    <views:SliderRow x:Name="RedRow" Title="Red" Tint="{StaticResource ToneRedBrush}" />
+                                    <views:SliderRow x:Name="GreenRow" Title="Green" Tint="{StaticResource ToneGreenBrush}" />
+                                    <views:SliderRow x:Name="BlueRow" Title="Blue" Tint="{StaticResource ToneBlueBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Adjust" />
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="0">
+                                    <views:SliderRow
+                                        x:Name="WarmthRow"
+                                        Title="Warmth"
+                                        Tint="{StaticResource WarmthBrush}"
+                                        ValueWidth="48" />
+                                    <views:SliderRow x:Name="GammaRow" Title="Gamma" />
+                                    <views:SliderRow x:Name="ContrastRow" Title="Contrast" />
+                                    <views:SliderRow x:Name="SaturationRow" Title="Saturation" />
+                                    <TextBlock
+                                        x:Name="SaturationNote"
+                                        Margin="0,0,0,4"
+                                        Style="{StaticResource NoteTextStyle}"
+                                        Visibility="Collapsed" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Style="{StaticResource SectionTitleStyle}" Text="Preview" />
+                            <!--
+                                Plain reference patterns, drawn without any processing: the screen's
+                                own correction is what you judge them by.
+                            -->
+                            <Border Style="{StaticResource CardStyle}" Padding="12">
+                                <StackPanel Spacing="8" AutomationProperties.AccessibilityView="Raw">
+                                    <Rectangle Height="18" RadiusX="4" RadiusY="4">
+                                        <Rectangle.Fill>
+                                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                                <GradientStop Offset="0" Color="Black" />
+                                                <GradientStop Offset="1" Color="White" />
+                                            </LinearGradientBrush>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.Column="0" Height="26" Fill="#FFFFFF" RadiusX="4" RadiusY="4" />
+                                        <Rectangle Grid.Column="1" Height="26" Fill="#FF0000" RadiusX="4" RadiusY="4" />
+                                        <Rectangle Grid.Column="2" Height="26" Fill="#00FF00" RadiusX="4" RadiusY="4" />
+                                        <Rectangle Grid.Column="3" Height="26" Fill="#0000FF" RadiusX="4" RadiusY="4" />
+                                        <Rectangle Grid.Column="4" Height="26" Fill="#000000" RadiusX="4" RadiusY="4" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ContentControl>
+
+                <Rectangle Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+
+                <StackPanel Margin="-12,-8,-12,0">
+                    <Button x:Name="ResetButton" Click="OnResetClick" Style="{StaticResource MenuRowButtonStyle}">
+                        <TextBlock x:Name="ResetText" Text="Reset to Defaults" />
+                    </Button>
+                    <Button
+                        AutomationProperties.AcceleratorKey="Control+Comma"
+                        AutomationProperties.Name="Settings…"
+                        Click="OnSettingsClick"
+                        Style="{StaticResource MenuRowButtonStyle}">
+                        <Grid>
+                            <TextBlock Text="Settings…" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Ctrl+," />
+                        </Grid>
+                    </Button>
+                    <Button
+                        AutomationProperties.AcceleratorKey="Control+Q"
+                        AutomationProperties.Name="Quit ScreenTune"
+                        Click="OnQuitClick"
+                        Style="{StaticResource MenuRowButtonStyle}">
+                        <Grid>
+                            <TextBlock Text="Quit ScreenTune" />
+                            <TextBlock
+                                HorizontalAlignment="Right"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="Ctrl+Q" />
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

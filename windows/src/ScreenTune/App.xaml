@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="ScreenTune.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--
+                Tokens. Everything else comes from the Windows theme resources so light,
+                dark and high contrast follow the system. Channel tints are the Windows
+                console palette red / green / blue and the accent-palette orange.
+            -->
+            <SolidColorBrush x:Key="ToneRedBrush" Color="#E74856" />
+            <SolidColorBrush x:Key="ToneGreenBrush" Color="#16C60C" />
+            <SolidColorBrush x:Key="ToneBlueBrush" Color="#3A96DD" />
+            <SolidColorBrush x:Key="WarmthBrush" Color="#F7630C" />
+
+            <x:Double x:Key="FlyoutWidth">360</x:Double>
+            <CornerRadius x:Key="CardCornerRadius">8</CornerRadius>
+
+            <!-- Card: a tonal surface, no stroke. -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}" />
+                <Setter Property="Padding" Value="12,8,12,8" />
+            </Style>
+
+            <Style x:Key="SectionTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+
+            <Style x:Key="NoteTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+
+            <!--
+                Shared by the menu rows, the icon buttons and the nudge buttons: hover and
+                press highlights, dimmed when disabled. No stroke, no shadow.
+            -->
+            <ControlTemplate x:Key="SubtleButtonTemplate" TargetType="ButtonBase">
+                <ContentPresenter
+                    x:Name="ContentPresenter"
+                    Padding="{TemplateBinding Padding}"
+                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                    AutomationProperties.AccessibilityView="Raw"
+                    Background="{TemplateBinding Background}"
+                    Content="{TemplateBinding Content}"
+                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    Foreground="{TemplateBinding Foreground}">
+                    <ContentPresenter.BackgroundTransition>
+                        <BrushTransition Duration="0:0:0.083" />
+                    </ContentPresenter.BackgroundTransition>
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal" />
+                            <VisualState x:Name="PointerOver">
+                                <VisualState.Setters>
+                                    <Setter Target="ContentPresenter.Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Pressed">
+                                <VisualState.Setters>
+                                    <Setter Target="ContentPresenter.Background" Value="{ThemeResource SubtleFillColorTertiaryBrush}" />
+                                    <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </ContentPresenter>
+            </ControlTemplate>
+
+            <!--
+                A full-width row that looks and behaves like a menu item: hover and press
+                highlights, dimmed when disabled. No stroke, no shadow.
+            -->
+            <Style x:Key="MenuRowButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="12,0,12,0" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+                <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+                <Setter Property="UseSystemFocusVisuals" Value="True" />
+                <Setter Property="FocusVisualMargin" Value="0" />
+                <Setter Property="Template" Value="{StaticResource SubtleButtonTemplate}" />
+            </Style>
+
+            <!-- Square icon button in the same family (the hold-to-compare eye). -->
+            <Style x:Key="SubtleIconButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuRowButtonStyle}">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+            </Style>
+
+            <!--
+                The small − / + beside each slider. Holding repeats. Not a tab stop: the
+                arrow keys on the focused slider move by the same step.
+            -->
+            <Style x:Key="NudgeButtonStyle" TargetType="RepeatButton">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Width" Value="24" />
+                <Setter Property="Height" Value="28" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                <Setter Property="IsTabStop" Value="False" />
+                <Setter Property="Delay" Value="400" />
+                <Setter Property="Interval" Value="50" />
+                <Setter Property="Template" Value="{StaticResource SubtleButtonTemplate}" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

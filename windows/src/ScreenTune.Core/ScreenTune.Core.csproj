@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Pure logic, no Windows or WinUI dependency, so the tests run anywhere. -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ScreenTune.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>

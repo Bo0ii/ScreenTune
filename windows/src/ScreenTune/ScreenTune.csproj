@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <RootNamespace>ScreenTune</RootNamespace>
+    <AssemblyName>ScreenTune</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\ScreenTune.ico</ApplicationIcon>
+    <UseWinUI>true</UseWinUI>
+    <!-- Unpackaged, with the Windows App SDK runtime copied next to the exe, so it runs from any folder. -->
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <!-- Without this, dotnet publish leaves out ScreenTune.pri and XAML pages fail to load. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Program.cs owns Main for single-instance handling. -->
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <Version>1.0.0</Version>
+    <Product>ScreenTune</Product>
+    <Company>Bo0ii</Company>
+    <Copyright>Copyright (c) 2026 Bo0ii</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2957" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+  </ItemGroup>
+
+  <!--
+    The self-contained Windows App SDK payload is the whole runtime MSIX, including the
+    AI, ML and Widgets parts (onnxruntime and DirectML alone are ~40 MB). ScreenTune
+    activates none of them, so leave their DLLs out through the SDK's exclusion list.
+  -->
+  <Target Name="SkipUnusedWindowsAppSdkPayload"
+          BeforeTargets="AddMicrosoftWindowsAppSDKPayloadFilesFromMsix"
+          DependsOnTargets="ExtractMicrosoftWindowsAppSDKMsixFiles"
+          Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
+    <ItemGroup>
+      <MicrosoftWindowsAppSDKFilesExcluded Include="$(MicrosoftWindowsAppSDKMsixContent)\onnxruntime.dll" />
+      <MicrosoftWindowsAppSDKFilesExcluded Include="$(MicrosoftWindowsAppSDKMsixContent)\DirectML.dll" />
+      <MicrosoftWindowsAppSDKFilesExcluded Include="$(MicrosoftWindowsAppSDKMsixContent)\Microsoft.Windows.AI.*.dll" />
+      <MicrosoftWindowsAppSDKFilesExcluded Include="$(MicrosoftWindowsAppSDKMsixContent)\Microsoft.Windows.Widgets.dll" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ScreenTune.Core\ScreenTune.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\*.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
