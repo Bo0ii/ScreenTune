@@ -120,7 +120,11 @@
       .seg { position: relative; height: 22px; border-radius: 11px; background: rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(3, 1fr); font-size: 12px; font-weight: 500; }
       .seg .pill { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 3); border-radius: 9px; background: rgba(255, 255, 255, 0.22); }
       .seg span { position: relative; display: grid; place-items: center; }
-      .srow { display: flex; align-items: center; gap: 10px; height: 22px; }
+      .srow { position: relative; display: flex; align-items: center; gap: 6px; height: 22px; }
+      .nb { position: relative; width: 18px; height: 20px; flex: none; display: grid; place-items: center; color: rgba(235, 235, 245, 0.62); }
+      .nb .hl { position: absolute; inset: 0; border-radius: 5px; background: rgba(255, 255, 255, 0.2); opacity: 0; }
+      .nb svg { position: relative; }
+      .plus1 { position: absolute; right: 30px; top: -10px; font-size: 11px; font-weight: 700; color: #ff9f9a; opacity: 0; font-variant-numeric: tabular-nums; }
       .srow .lbl { width: 70px; flex: none; }
       .slider { position: relative; flex: 1; height: 22px; }
       .slider .track { position: absolute; left: 0; right: 0; top: 9px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.17); }
@@ -128,7 +132,7 @@
       .slider .kw { position: absolute; left: 11px; right: 11px; top: 0; bottom: 0; }
       .slider .fill { position: absolute; left: 0; width: 100%; top: 9px; height: 4px; background: var(--tint, #0a84ff); transform-origin: 0 50%; transform: scaleX(0); }
       .slider .knob { position: absolute; left: 0; top: 4px; width: 22px; height: 14px; margin-left: -11px; border-radius: 7px; background: #f4f4f6; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
-      .srow .val { width: 34px; flex: none; text-align: right; color: rgba(235, 235, 245, 0.55); font-variant-numeric: tabular-nums; }
+      .srow .val { width: 40px; flex: none; text-align: right; color: rgba(235, 235, 245, 0.55); font-variant-numeric: tabular-nums; }
       .srow.wide .val { width: 46px; }
       .vv { display: grid; }
       .vv > span { grid-area: 1 / 1; text-align: right; }
@@ -149,13 +153,13 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="mac" data-start="0" data-duration="18" data-width="1920" data-height="1080" data-fps="25">
-      <div id="bg" class="layer clip" data-start="0" data-duration="18" data-track-index="0">
+    <div id="root" data-composition-id="mac" data-start="0" data-duration="18.7" data-width="1920" data-height="1080" data-fps="25">
+      <div id="bg" class="layer clip" data-start="0" data-duration="18.7" data-track-index="0">
         <div class="glow" id="glow-a"></div>
         <div class="glow" id="glow-b"></div>
       </div>
 
-      <div id="world" class="clip" data-start="0" data-duration="18" data-track-index="1">
+      <div id="world" class="clip" data-start="0" data-duration="18.7" data-track-index="1">
         <div class="stage-light" style="left: 120px; top: 900px; width: 1680px; height: 260px"></div>
 
         <div id="laptop">
@@ -236,19 +240,19 @@
                     <div class="sec">Tone</div>
                     <div class="card">
                       <div class="seg" id="seg"><i class="pill" id="seg-pill"></i><span id="seg-black">Black</span><span>Middle</span><span>White</span></div>
-                      <div class="srow" style="--tint: #ff453a"><span class="lbl">Red</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="red-fill"></i><i class="knob" id="red-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.0<span id="red-d">0</span></span></span></div>
-                      <div class="srow" style="--tint: #32d74b"><span class="lbl">Green</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="green-fill"></i><i class="knob" id="green-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.00</span></span></div>
-                      <div class="srow" style="--tint: #0a84ff"><span class="lbl">Blue</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="blue-fill"></i><i class="knob" id="blue-knob"></i></span></span><span class="val vv"><span class="v-mid">1.00</span><span class="v-blk">0.00</span></span></div>
+                      <div class="srow" id="row-red" style="--tint: #ff453a"><span class="lbl">Red</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="red-fill"></i><i class="knob" id="red-knob"></i></span></span><span class="nb" id="red-plus"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val vv"><span class="v-mid">1.000</span><span class="v-blk">0.00<span id="red-d">0</span></span></span><span class="plus1" id="pl1">+0.001</span><span class="plus1" id="pl2">+0.001</span><span class="plus1" id="pl3">+0.001</span><span class="plus1" id="pl4">+0.001</span><span class="plus1" id="pl5">+0.001</span></div>
+                      <div class="srow" style="--tint: #32d74b"><span class="lbl">Green</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="green-fill"></i><i class="knob" id="green-knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val vv"><span class="v-mid">1.000</span><span class="v-blk">0.000</span></span></div>
+                      <div class="srow" style="--tint: #0a84ff"><span class="lbl">Blue</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill" id="blue-fill"></i><i class="knob" id="blue-knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val vv"><span class="v-mid">1.000</span><span class="v-blk">0.000</span></span></div>
                     </div>
                   </div>
 
                   <div class="group" id="card-adjust">
                     <div class="sec">Adjust</div>
                     <div class="card">
-                      <div class="srow wide" style="--tint: #ff9f0a"><span class="lbl">Warmth</span><span class="slider" id="warm-slider"><i class="track"></i><i class="stub"></i><span class="kw" id="warm-kw" data-f="0"><i class="fill" id="warm-fill"></i><i class="knob" id="warm-knob"></i></span></span><span class="val"><span id="warm-v">6500</span>K</span></div>
-                      <div class="srow"><span class="lbl">Gamma</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5667"><i class="fill"></i><i class="knob"></i></span></span><span class="val">2.20</span></div>
-                      <div class="srow"><span class="lbl">Contrast</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="val">1.00</span></div>
-                      <div class="srow"><span class="lbl">Saturation</span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="val">1.00</span></div>
+                      <div class="srow wide" style="--tint: #ff9f0a"><span class="lbl">Warmth</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider" id="warm-slider"><i class="track"></i><i class="stub"></i><span class="kw" id="warm-kw" data-f="0"><i class="fill" id="warm-fill"></i><i class="knob" id="warm-knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val"><span id="warm-v">6500</span>K</span></div>
+                      <div class="srow"><span class="lbl">Gamma</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5667"><i class="fill"></i><i class="knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val">2.200</span></div>
+                      <div class="srow"><span class="lbl">Contrast</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val">1.000</span></div>
+                      <div class="srow"><span class="lbl">Saturation</span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="slider"><i class="track"></i><i class="stub"></i><span class="kw" data-f="0.5"><i class="fill"></i><i class="knob"></i></span></span><span class="nb"><i class="hl"></i><svg width="8" height="8" viewBox="0 0 8 8"><path d="M0.5 4h7M4 0.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg></span><span class="val">1.000</span></div>
                     </div>
                   </div>
 
@@ -282,19 +286,19 @@
         </div>
       </div>
 
-      <div id="scrim" class="layer clip" data-start="0" data-duration="18" data-track-index="2" style="opacity: 0"></div>
+      <div id="scrim" class="layer clip" data-start="0" data-duration="18.7" data-track-index="2" style="opacity: 0"></div>
 
-      <div id="cap1" class="caption clip" data-start="0" data-duration="18" data-track-index="3" style="opacity: 0"><h3>Warmth, live.</h3><p>The whole screen follows the slider.</p></div>
-      <div id="cap2" class="caption clip" data-start="0" data-duration="18" data-track-index="4" style="opacity: 0"><h3>Black, middle and white.</h3><p>Every point, every color channel.</p></div>
-      <div id="cap3" class="caption clip" data-start="0" data-duration="18" data-track-index="5" style="opacity: 0"><h3>Every screen, its own look.</h3><p>Settings stay with each display.</p></div>
-      <div id="cap4" class="caption clip" data-start="0" data-duration="18" data-track-index="6" style="opacity: 0"><h3>Hold to compare.</h3><p>The original colors, for as long as you hold.</p></div>
+      <div id="cap1" class="caption clip" data-start="0" data-duration="18.7" data-track-index="3" style="opacity: 0"><h3>Warmth, live.</h3><p>The whole screen follows the slider.</p></div>
+      <div id="cap2" class="caption clip" data-start="0" data-duration="18.7" data-track-index="4" style="opacity: 0"><h3>Fine-tune to 0.001.</h3><p>Every slider has − and +, on Mac and Windows.</p></div>
+      <div id="cap3" class="caption clip" data-start="0" data-duration="18.7" data-track-index="5" style="opacity: 0"><h3>Every screen, its own look.</h3><p>Settings stay with each display.</p></div>
+      <div id="cap4" class="caption clip" data-start="0" data-duration="18.7" data-track-index="6" style="opacity: 0"><h3>Hold to compare.</h3><p>The original colors, for as long as you hold.</p></div>
 
-      <div id="title" class="layer clip" data-start="0" data-duration="18" data-track-index="7">
+      <div id="title" class="layer clip" data-start="0" data-duration="18.7" data-track-index="7">
         <div class="line" data-words>Every screen.</div>
         <div class="line" data-words data-brand="tuned.">Perfectly tuned.</div>
       </div>
 
-      <div id="outro" class="layer clip" data-start="0" data-duration="18" data-track-index="8" style="opacity: 0">
+      <div id="outro" class="layer clip" data-start="0" data-duration="18.7" data-track-index="8" style="opacity: 0">
         <div class="icon">
           <svg viewBox="0 0 1024 1024">
             <defs>
@@ -311,8 +315,8 @@
             <g id="ic-knob"><circle cx="636" cy="466" r="76" fill="#000" fill-opacity="0.16" /><circle cx="636" cy="456" r="74" fill="#fff" /></g>
           </svg>
         </div>
-        <div class="wordmark"><span id="wm-name">ScreenTune</span><span class="for" id="wm-for">for Mac</span></div>
-        <div class="tagline" id="tagline">Color tuning for every display, right from the menu bar.</div>
+        <div class="wordmark"><span id="wm-name">ScreenTune</span></div>
+        <div class="tagline" id="tagline">For Mac and Windows. Color tuning for every display.</div>
       </div>
     </div>
 
@@ -361,6 +365,7 @@
         tone: ST.pos($("#card-tone"), world),
         screens: ST.pos($("#screens"), world),
         header: ST.pos($("#panel .p-header"), world),
+        red: ST.pos($("#row-red"), world),
         lapLeft: ST.pos($("#laptop .base"), world, 0, 0.5),
         monRight: ST.pos($("#monitor .bezel"), world, 1, 0.5),
       };
@@ -372,6 +377,7 @@
         enter: ST.cam(0.74, P.monitor, 960, 600),
         adjust: ST.cam(2.35, P.adjust, 1180, 470),
         tone: ST.cam(2.35, P.tone, 1180, 520),
+        red: ST.cam(3.7, P.red, 1120, 470),
         screens: ST.cam(2.35, P.screens, 1180, 470),
         both: ST.cam(Math.min(1640 / spanW, 0.9), both, 960, 480),
         compare: ST.cam(1.45, P.header, 1360, 300),
@@ -391,11 +397,10 @@
         glyph: C(glyph),
         warm: C("#warm-knob"),
         seg: C("#seg-black"),
-        redAtMid: C("#red-knob"),
+        redPlus: C("#red-plus"),
         builtin: C("#row-builtin", 0.32, 0.5),
         eye: C("#eye"),
       };
-      const redLeft = { x: K.redAtMid.x - redKwW * 0.5, y: K.redAtMid.y };
       const segStep = $("#seg").getBoundingClientRect().width / ST._k(world) / 0.8465608;
 
       // ---------- Timeline ----------
@@ -449,16 +454,14 @@
       tl.to("#mcursor svg", { scale: 0.9, duration: 0.1, ease: "power2.out", transformOrigin: "3px 2px" }, 6.4);
       slide("warm", W, 1.6, "power2.inOut", 6.5);
       tl.to("#mcursor", { x: K.warm.x + kwW * W, duration: 1.6, ease: "power2.inOut" }, 6.5);
-      tl.fromTo("#warm-v", { innerText: 6500 }, { innerText: 4300, snap: { innerText: 50 }, duration: 1.6, ease: "power2.inOut" }, 6.5);
+      tl.fromTo("#warm-v", { innerText: 6500 }, { innerText: 4300, snap: { innerText: 1 }, duration: 1.6, ease: "power2.inOut" }, 6.5);
       tl.to("#mwarm", { opacity: 0.55, duration: 1.6, ease: "power2.inOut" }, 6.5);
       tl.to("#mcursor svg", { scale: 1, duration: 0.12, ease: "power2.out" }, 8.15);
 
-      // 5. Tone: switch to Black, lift red in the shadows
+      // 5. Black point, then the fine-tune close-up: five taps on +, 0.000 -> 0.005
       tl.to("#cap1", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 8.45);
       tl.to(world, { ...CAM.tone, duration: 1.0, ease: "power3.inOut" }, 8.45);
       tl.to("#mcursor", { x: K.seg.x, y: K.seg.y, duration: 0.75, ease: "power3.inOut" }, 8.6);
-      tl.from("#cap2", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 8.95);
-      tl.to("#cap2", { opacity: 1, duration: 0.5, ease: "power1.out" }, 8.95);
       tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 9.38);
       tl.to("#seg-pill", { x: 0, duration: 0.32, ease: "back.out(1.4)" }, 9.45);
       ["red", "green", "blue"].forEach((c) => {
@@ -466,67 +469,82 @@
       });
       tl.to(".v-mid", { opacity: 0, duration: 0.12, ease: "none" }, 9.47);
       tl.to(".v-blk", { opacity: 1, duration: 0.12, ease: "none" }, 9.5);
-      tl.to("#mcursor", { x: redLeft.x, y: redLeft.y, duration: 0.5, ease: "power3.inOut" }, 9.7);
-      slide("red", 0.08, 0.8, "power2.inOut", 10.25);
-      tl.to("#mcursor", { x: redLeft.x + redKwW * 0.08, duration: 0.8, ease: "power2.inOut" }, 10.25);
-      tl.fromTo("#red-d", { innerText: 0 }, { innerText: 4, snap: { innerText: 1 }, duration: 0.8, ease: "power2.inOut" }, 10.25);
-      tl.to("#mlift", { opacity: 1, duration: 0.8, ease: "power2.inOut" }, 10.25);
+      tl.to("#mcursor", { x: K.redPlus.x, y: K.redPlus.y, duration: 0.55, ease: "power3.inOut" }, 9.7);
+      tl.to(world, { ...CAM.red, duration: 0.85, ease: "power3.inOut" }, 9.75);
+      const focusOff = "#panel > *:not(#card-tone), #card-tone .sec, #card-tone .seg, #card-tone .srow:not(#row-red)";
+      tl.to(focusOff, { opacity: 0.28, duration: 0.5, ease: "power2.out" }, 9.95);
+      tl.from("#cap2", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 10.0);
+      tl.to("#cap2", { opacity: 1, duration: 0.5, ease: "power1.out" }, 10.0);
+      tl.to("#red-plus .hl", { opacity: 0.55, duration: 0.15, ease: "none" }, 10.3);
+      for (let i = 1; i <= 5; i++) {
+        const t = 10.55 + (i - 1) * 0.26;
+        tl.to("#mcursor svg", { scale: 0.86, duration: 0.06, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, t);
+        tl.to("#red-plus .hl", { opacity: 1, duration: 0.04, ease: "none" }, t);
+        tl.to("#red-plus .hl", { opacity: 0.55, duration: 0.12, ease: "none" }, t + 0.08);
+        tl.set("#red-d", { innerText: i }, t + 0.03);
+        tl.to("#red-knob", { x: (redKwW * (i * 0.001)) / 0.5, duration: 0.18, ease: "power2.out" }, t + 0.03);
+        tl.to("#red-fill", { scaleX: (i * 0.001) / 0.5, duration: 0.18, ease: "power2.out" }, t + 0.03);
+        tl.to("#mlift", { opacity: i * 0.2, duration: 0.18, ease: "power2.out" }, t + 0.03);
+        tl.fromTo(`#pl${i}`, { y: 4, opacity: 0 }, { y: -14, opacity: 1, duration: 0.2, ease: "power2.out", immediateRender: false }, t + 0.03);
+        tl.to(`#pl${i}`, { y: -24, opacity: 0, duration: 0.28, ease: "power1.in" }, t + 0.24);
+      }
+      tl.to("#red-plus .hl", { opacity: 0, duration: 0.25, ease: "none" }, 11.8);
+      tl.to(focusOff, { opacity: 1, duration: 0.45, ease: "power2.inOut" }, 11.75);
 
       // 6. Pick the built-in display: its own settings come back
-      tl.to("#cap2", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 11.05);
-      tl.to(world, { ...CAM.screens, duration: 0.85, ease: "power3.inOut" }, 11.05);
-      tl.to("#mcursor", { x: K.builtin.x, y: K.builtin.y, duration: 0.7, ease: "power3.inOut" }, 11.15);
-      tl.to("#row-builtin .hl", { opacity: 1, duration: 0.1, ease: "none" }, 11.75);
-      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 11.8);
-      tl.to("#check-external", { opacity: 0, duration: 0.15, ease: "none" }, 11.9);
-      tl.fromTo("#check-builtin", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 11.9);
-      tl.to("#row-builtin .hl", { opacity: 0, duration: 0.3, ease: "power1.out" }, 12.05);
-      slide("warm", 0, 0.45, "power3.out", 11.95);
-      tl.fromTo("#warm-v", { innerText: 4300 }, { innerText: 6500, snap: { innerText: 50 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 11.95);
-      slide("red", 0, 0.45, "power3.out", 11.95);
-      tl.fromTo("#red-d", { innerText: 4 }, { innerText: 0, snap: { innerText: 1 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 11.95);
+      tl.to("#cap2", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 11.75);
+      tl.to(world, { ...CAM.screens, duration: 0.85, ease: "power3.inOut" }, 11.75);
+      tl.to("#mcursor", { x: K.builtin.x, y: K.builtin.y, duration: 0.7, ease: "power3.inOut" }, 11.85);
+      tl.to("#row-builtin .hl", { opacity: 1, duration: 0.1, ease: "none" }, 12.45);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", yoyo: true, repeat: 1, transformOrigin: "3px 2px" }, 12.5);
+      tl.to("#check-external", { opacity: 0, duration: 0.15, ease: "none" }, 12.6);
+      tl.fromTo("#check-builtin", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 12.6);
+      tl.to("#row-builtin .hl", { opacity: 0, duration: 0.3, ease: "power1.out" }, 12.75);
+      slide("warm", 0, 0.45, "power3.out", 12.65);
+      tl.fromTo("#warm-v", { innerText: 4300 }, { innerText: 6500, snap: { innerText: 1 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 12.65);
+      slide("red", 0, 0.45, "power3.out", 12.65);
+      tl.fromTo("#red-d", { innerText: 5 }, { innerText: 0, snap: { innerText: 1 }, duration: 0.45, ease: "power3.out", immediateRender: false }, 12.65);
 
       // 7. Pull back: two displays, two looks
-      tl.to(world, { ...CAM.both, duration: 1.25, ease: "power3.inOut" }, 12.25);
-      tl.to("#mcursor", { opacity: 0, duration: 0.3, ease: "power1.out" }, 12.3);
-      tl.from("#cap3", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 12.6);
-      tl.to("#cap3", { opacity: 1, duration: 0.5, ease: "power1.out" }, 12.6);
+      tl.to(world, { ...CAM.both, duration: 1.25, ease: "power3.inOut" }, 12.95);
+      tl.to("#mcursor", { opacity: 0, duration: 0.3, ease: "power1.out" }, 13.0);
+      tl.from("#cap3", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 13.3);
+      tl.to("#cap3", { opacity: 1, duration: 0.5, ease: "power1.out" }, 13.3);
 
       // 8. Hold to compare
-      tl.to("#cap3", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 13.75);
-      tl.to(world, { ...CAM.compare, duration: 1.05, ease: "power3.inOut" }, 13.7);
-      tl.set("#mcursor", { x: K.eye.x - 120, y: K.eye.y + 90 }, 13.9);
-      tl.to("#mcursor", { opacity: 1, x: K.eye.x, y: K.eye.y, duration: 0.6, ease: "power3.out" }, 14.0);
-      tl.from("#cap4", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 14.1);
-      tl.to("#cap4", { opacity: 1, duration: 0.5, ease: "power1.out" }, 14.1);
-      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", transformOrigin: "3px 2px" }, 14.6);
-      tl.to("#eye .hl", { opacity: 1, duration: 0.08, ease: "none" }, 14.62);
-      tl.to("#eye-fill", { opacity: 1, duration: 0.08, ease: "none" }, 14.62);
-      tl.to("#eye-open", { opacity: 0, duration: 0.08, ease: "none" }, 14.62);
-      tl.to("#mwarm", { opacity: 0, duration: 0.14, ease: "power1.out" }, 14.64);
-      tl.to("#mcursor .ring", { opacity: 0.9, scale: 1, duration: 0.01 }, 14.62);
-      tl.fromTo("#mcursor .ring", { scale: 0.4 }, { scale: 1.6, opacity: 0, duration: 0.6, ease: "power2.out", immediateRender: false }, 14.64);
-      tl.to("#mcursor svg", { scale: 1, duration: 0.1, ease: "power2.out" }, 15.35);
-      tl.to("#eye .hl", { opacity: 0, duration: 0.12, ease: "none" }, 15.35);
-      tl.to("#eye-fill", { opacity: 0, duration: 0.12, ease: "none" }, 15.35);
-      tl.to("#eye-open", { opacity: 1, duration: 0.12, ease: "none" }, 15.35);
-      tl.to("#mwarm", { opacity: 0.55, duration: 0.2, ease: "power1.out" }, 15.36);
+      tl.to("#cap3", { opacity: 0, y: -12, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 14.45);
+      tl.to(world, { ...CAM.compare, duration: 1.05, ease: "power3.inOut" }, 14.4);
+      tl.set("#mcursor", { x: K.eye.x - 120, y: K.eye.y + 90 }, 14.6);
+      tl.to("#mcursor", { opacity: 1, x: K.eye.x, y: K.eye.y, duration: 0.6, ease: "power3.out" }, 14.7);
+      tl.from("#cap4", { y: 26, filter: "blur(10px)", duration: 0.7, ease: "expo.out" }, 14.8);
+      tl.to("#cap4", { opacity: 1, duration: 0.5, ease: "power1.out" }, 14.8);
+      tl.to("#mcursor svg", { scale: 0.86, duration: 0.08, ease: "power2.in", transformOrigin: "3px 2px" }, 15.3);
+      tl.to("#eye .hl", { opacity: 1, duration: 0.08, ease: "none" }, 15.32);
+      tl.to("#eye-fill", { opacity: 1, duration: 0.08, ease: "none" }, 15.32);
+      tl.to("#eye-open", { opacity: 0, duration: 0.08, ease: "none" }, 15.32);
+      tl.to("#mwarm", { opacity: 0, duration: 0.14, ease: "power1.out" }, 15.34);
+      tl.to("#mcursor .ring", { opacity: 0.9, scale: 1, duration: 0.01 }, 15.32);
+      tl.fromTo("#mcursor .ring", { scale: 0.4 }, { scale: 1.6, opacity: 0, duration: 0.6, ease: "power2.out", immediateRender: false }, 15.34);
+      tl.to("#mcursor svg", { scale: 1, duration: 0.1, ease: "power2.out" }, 16.05);
+      tl.to("#eye .hl", { opacity: 0, duration: 0.12, ease: "none" }, 16.05);
+      tl.to("#eye-fill", { opacity: 0, duration: 0.12, ease: "none" }, 16.05);
+      tl.to("#eye-open", { opacity: 1, duration: 0.12, ease: "none" }, 16.05);
+      tl.to("#mwarm", { opacity: 0.55, duration: 0.2, ease: "power1.out" }, 16.06);
 
       // 9. Outro: the icon builds itself, then the name
-      tl.to("#cap4", { opacity: 0, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 15.6);
-      tl.to("#scrim", { opacity: 0, duration: 0.5, ease: "power1.in" }, 15.6);
-      tl.to(world, { ...CAM.out, opacity: 0, filter: "blur(20px)", duration: 0.8, ease: "power2.in" }, 15.6);
-      tl.to("#outro", { opacity: 1, duration: 0.01 }, 15.95);
-      tl.from("#ic-bg", { scale: 0.55, opacity: 0, duration: 0.7, ease: "back.out(1.5)", svgOrigin: "512 512" }, 15.95);
-      tl.from("#ic-screen", { y: 60, opacity: 0, duration: 0.6, ease: "expo.out" }, 16.1);
-      tl.from("#ic-stand", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 16.2);
-      tl.from("#ic-track", { scaleX: 0, opacity: 0, duration: 0.5, ease: "power3.out", svgOrigin: "262 456" }, 16.3);
-      tl.from("#ic-knob", { x: -330, opacity: 0, duration: 0.8, ease: "back.out(1.6)" }, 16.38);
-      tl.from("#wm-name", { y: 40, opacity: 0, filter: "blur(14px)", duration: 0.7, ease: "expo.out" }, 16.45);
-      tl.from("#wm-for", { y: 40, opacity: 0, filter: "blur(14px)", duration: 0.7, ease: "power3.out" }, 16.6);
-      tl.from("#tagline", { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" }, 16.8);
-      tl.to("#outro", { opacity: 0, duration: 0.45, ease: "power2.in" }, 17.5);
-      tl.to(".glow", { opacity: 0, duration: 0.6, ease: "power1.in" }, 17.35);
+      tl.to("#cap4", { opacity: 0, filter: "blur(6px)", duration: 0.4, ease: "power2.in" }, 16.3);
+      tl.to("#scrim", { opacity: 0, duration: 0.5, ease: "power1.in" }, 16.3);
+      tl.to(world, { ...CAM.out, opacity: 0, filter: "blur(20px)", duration: 0.8, ease: "power2.in" }, 16.3);
+      tl.to("#outro", { opacity: 1, duration: 0.01 }, 16.65);
+      tl.from("#ic-bg", { scale: 0.55, opacity: 0, duration: 0.7, ease: "back.out(1.5)", svgOrigin: "512 512" }, 16.65);
+      tl.from("#ic-screen", { y: 60, opacity: 0, duration: 0.6, ease: "expo.out" }, 16.8);
+      tl.from("#ic-stand", { y: 40, opacity: 0, duration: 0.5, ease: "power3.out" }, 16.9);
+      tl.from("#ic-track", { scaleX: 0, opacity: 0, duration: 0.5, ease: "power3.out", svgOrigin: "262 456" }, 17.0);
+      tl.from("#ic-knob", { x: -330, opacity: 0, duration: 0.8, ease: "back.out(1.6)" }, 17.08);
+      tl.from("#wm-name", { y: 40, opacity: 0, filter: "blur(14px)", duration: 0.7, ease: "expo.out" }, 17.15);
+      tl.from("#tagline", { y: 20, opacity: 0, duration: 0.6, ease: "power2.out" }, 17.5);
+      tl.to("#outro", { opacity: 0, duration: 0.45, ease: "power2.in" }, 18.2);
+      tl.to(".glow", { opacity: 0, duration: 0.6, ease: "power1.in" }, 18.05);
 
       window.__timelines = window.__timelines || {};
       window.__timelines["mac"] = tl;

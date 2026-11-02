@@ -1,6 +1,6 @@
 # ScreenTune showcase films
 
-Two short looping product films for the repo README, one per app. Rendered with HyperFrames, converted to GIF.
+One short looping product film for the repo README, covering both apps (it shows the Mac UI). Rendered with HyperFrames, encoded as animated WebP.
 
 ## Style Prompt
 

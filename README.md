@@ -6,33 +6,32 @@
 
 Tone curves, warmth, gamma, contrast and saturation for every display you own, with hold-to-compare.
 
-[Download the latest build](../../releases/latest) · [Mac](#screentune-for-mac) · [Windows](#screentune-for-windows)
+[Download the latest build](../../releases/latest)
 
 </div>
 
-## ScreenTune for Mac
+<img src="docs/media/screentune.webp" width="100%" alt="ScreenTune: the panel opens, dragging Warmth warms the whole screen live, five taps on the plus button move Red from 0.000 to 0.005, each display keeps its own settings, and holding the eye button shows the original colors." />
 
-<img src="docs/media/screentune-mac.webp" width="100%" alt="ScreenTune for Mac: the menu bar panel opens, dragging Warmth warms the whole screen live, the Black tone point lifts red in the shadows, each display keeps its own settings, and holding the eye button shows the original colors." />
+## What it does
 
-Lives in the menu bar. Each display keeps its own settings, and holding the eye button shows the original colors. macOS 26 or later. Source in [`mac/`](mac/) (Swift, SwiftUI + AppKit).
+Both apps have the same controls, steps and math, and share profile files.
 
-## ScreenTune for Windows
+- **Per screen:** every display keeps its own settings.
+- **Tone:** black, middle and white points for each color channel.
+- **Adjust:** warmth, gamma, contrast and saturation.
+- **Fine-tune:** every slider has − and + buttons that move 0.001 (warmth 1K) and repeat while held. Drags land on the same steps, so the number shown is the exact value.
+- **Hold to compare:** hold the eye button to see the original colors.
 
-<img src="docs/media/screentune-windows.webp" width="100%" alt="ScreenTune for Windows: the flyout rises from the taskbar, five taps on the plus button move Gamma from 2.200 to 2.205, dragging Warmth warms the desktop, each monitor keeps its own settings, and holding the eye button shows the original colors." />
-
-Lives in the notification area. Every slider has − / + buttons that move by 0.001 (warmth by 1K), on top of drag, arrow keys and the mouse wheel. Windows 10 (19041) or later. Source in [`windows/`](windows/) (C#, .NET 9, WinUI 3).
+| | Mac | Windows |
+|---|---|---|
+| Lives in | Menu bar | Notification area (taskbar) |
+| Needs | macOS 26 or later | Windows 10 (19041) or later, x64 |
+| Download | `ScreenTune.dmg` | `ScreenTune-Setup.exe` |
+| Source | [`mac/`](mac/) (Swift, SwiftUI + AppKit) | [`windows/`](windows/) (C#, .NET 9, WinUI 3) |
 
 ## Downloads
 
-Every push to `master` builds both apps and publishes them on the [Releases](../../releases) page as "ScreenTune build N", with `ScreenTune-macOS.zip` and `ScreenTune-Windows-x64.zip`. Pushes that only change Markdown files or `docs/` do not build.
+Every push to `master` builds both apps and publishes them on the [Releases](../../releases) page as "ScreenTune build N". Pushes that only change Markdown files or `docs/` do not build.
 
-The Mac build is not signed (no Apple Developer account). macOS blocks the first launch once: open it, then System Settings > Privacy & Security > Open Anyway, or run `xattr -dr com.apple.quarantine /Applications/ScreenTune.app`.
-
-## Build locally
-
-| App | Folder | Stack | Guide |
-|---|---|---|---|
-| Mac | [`mac/`](mac/) | Swift, SwiftUI + AppKit, Xcode 26 | [`mac/CLAUDE.md`](mac/CLAUDE.md) |
-| Windows | [`windows/`](windows/) | C#, .NET 9, WinUI 3 | [`windows/README.md`](windows/README.md) |
-
-The films above are HyperFrames compositions in [`docs/showcase/`](docs/showcase/).
+- **Mac:** open `ScreenTune.dmg` and drag ScreenTune to Applications. The app is not signed (no Apple Developer account), so macOS blocks the first launch once: open it, then System Settings > Privacy & Security > Open Anyway, or run `xattr -dr com.apple.quarantine /Applications/ScreenTune.app`.
+- **Windows:** run `ScreenTune-Setup.exe` (no admin rights needed). It is not signed, so SmartScreen may warn: More info > Run anyway.
