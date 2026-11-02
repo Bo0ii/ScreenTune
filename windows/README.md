@@ -36,4 +36,4 @@ dotnet build ScreenTune-Windows.sln
 dotnet test tests/ScreenTune.Core.Tests
 ```
 
-.NET 9 SDK, WinUI 3 (Windows App SDK 1.8). See `CLAUDE.md` for the architecture.
+.NET 9 SDK, WinUI 3 (Windows App SDK 1.8).
