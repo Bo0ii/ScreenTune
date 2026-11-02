@@ -20,7 +20,7 @@ Logic checks (no Xcode test target; compiles the AppKit-free files with `swiftc`
 Tests/run.sh
 ```
 
-Only `DisplaySettings.swift` and `SettingsStore.swift` are covered. Keep them free of AppKit/CoreGraphics so the script can compile them. Anything visual (overlays, gamma tables, UI) has to be checked by running the app.
+Only `DisplaySettings.swift` (including `Nudge`) and `SettingsStore.swift` are covered. Keep them free of AppKit/CoreGraphics so the script can compile them. Anything visual (overlays, gamma tables, UI) has to be checked by running the app.
 
 - **Deployment target**: macOS 26.0 (Liquid Glass APIs are used without availability checks)
 - **Language**: Swift 5 mode, SwiftUI + AppKit
@@ -44,7 +44,7 @@ ScreenTune/
   ContentView.swift          Panel content: header switch/compare, screen list, Tone / Adjust / Preview cards, menu rows
   SettingsView.swift         Settings window (grouped Form): profiles, launch at login, about
   CalibrationModel.swift     Screens, per-screen settings, apply scheduling, drift correction, DeskRiv
-  DisplaySettings.swift      Pure value type: the 13 values, ranges, clamping, transfer-table + warmth math, Codable
+  DisplaySettings.swift      Pure value type: the 13 values, ranges, clamping, transfer-table + warmth math, Codable; `Nudge` fine steps
   SettingsStore.swift        UserDefaults persistence + migration from the old flat keys
   GammaController.swift      Per-display CGSetDisplayTransferByTable writes and drift checks
   SaturationOverlay.swift    Per-screen CABackdropLayer overlay windows for saturation
@@ -119,4 +119,5 @@ Export and import use `DisplaySettings` JSON (same 12 keys as the original `Cali
 
 - Panel: `MenuBarExtra` was replaced because its window background can't be controlled. `StatusBarController` owns an `NSStatusItem` (opens on mouse down) and `MenuPanel`, a borderless non-activating `NSPanel` at `.popUpMenu` level whose content view is an `NSVisualEffectView` (`.popover` material, behind-window blending) rounded with a `maskImage` so blur and shadow follow the corners. It opens centered under the icon with a 0.12 s fade and closes on outside click (global monitor), losing key status, Esc (`cancelOperation`), or clicking the icon again (a 0.2 s guard stops the resign-then-toggle race from reopening it).
 - Content: header with title, hold-to-compare eye button and on/off switch (like the Wi-Fi menu); a "Screen" list of menu rows with a checkmark (only with 2+ screens); Tone / Adjust / Preview cards with a subtle `.fill.quaternary` background and no borders, dimmed and disabled while off; then menu rows (Reset / Settings… ⌘, / Quit ScreenTune ⌘Q). `MenuRow` has hover, pressed and disabled states. No glass buttons on the frosted background: glass-on-blur looked off. System controls (switch, segmented control, sliders) still pick up Liquid Glass automatically.
+- Fine-tune (same as the Windows app): `SliderRow` is label, - / slider / +, value. The - / + `NudgeButton`s move one step (`Nudge.fine` 0.001; `Nudge.warmth` 1K), repeat while held (`.buttonRepeatBehavior(.enabled)`) and dim at the ends. Slider drags snap to the same grid through the binding (not `Slider(step:)`, which would draw thousands of tick marks), so the number shown is the exact value. Values show 3 decimals (`Nudge.decimals`), warmth exact Kelvin. `Nudge.apply` matches `windows/src/ScreenTune.Core/Nudge.cs` and its checks in `Tests/main.swift` mirror `NudgeTests.cs`: change both apps together. No mouse-wheel or arrow-key stepping on Mac yet (the panel never takes keyboard focus).
 - Settings: `SettingsWindowManager.shared` reuses one `NSWindow` (`NSHostingController`, frame autosave name `ScreenTuneSettings`) hosting a `.grouped` `Form`. Launch at Login uses `SMAppService.mainApp`, keeps its status in `@State` so the toggle refreshes, shows errors, and links to Login Items when approval is required.

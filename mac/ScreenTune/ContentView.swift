@@ -28,7 +28,7 @@ struct ContentView: View {
 
                 Card("Adjust") {
                     SliderRow("Warmth", value: warmthBinding, range: DisplaySettings.temperatureRange,
-                              tint: .orange, valueWidth: 46) { value in
+                              step: Nudge.warmth, tint: .orange, valueWidth: 46) { value in
                         "\(Self.kelvin(fromSlider: value))K"
                     }
                     SliderRow("Gamma", value: binding(\.gamma), range: DisplaySettings.gammaRange)
@@ -156,9 +156,10 @@ struct ContentView: View {
         )
     }
 
+    // Exact Kelvin: warmth moves in 1K steps, like the Windows app.
     private static func kelvin(fromSlider value: Double) -> Int {
         let range = DisplaySettings.temperatureRange
-        return Int(((range.lowerBound + range.upperBound - value) / 50).rounded()) * 50
+        return Int((range.lowerBound + range.upperBound - value).rounded())
     }
 }
 
@@ -197,10 +198,14 @@ private struct Card<Content: View>: View {
     }
 }
 
+/// Label, - / slider / +, value. Same fine-tune behavior as the Windows app: the
+/// buttons move one step (0.001, warmth 1K) and repeat while held, and drags land
+/// on the same grid, so the number shown is the exact value.
 private struct SliderRow: View {
     let title: String
     @Binding var value: Double
     let range: ClosedRange<Double>
+    let step: Double
     let tint: Color?
     let valueWidth: CGFloat
     let valueText: (Double) -> String
@@ -209,30 +214,95 @@ private struct SliderRow: View {
         _ title: String,
         value: Binding<Double>,
         range: ClosedRange<Double>,
+        step: Double = Nudge.fine,
         tint: Color? = nil,
-        valueWidth: CGFloat = 34,
-        valueText: @escaping (Double) -> String = { String(format: "%.2f", $0) }
+        valueWidth: CGFloat = 40,
+        valueText: ((Double) -> String)? = nil
     ) {
         self.title = title
         self._value = value
         self.range = range
+        self.step = step
         self.tint = tint
         self.valueWidth = valueWidth
-        self.valueText = valueText
+        let decimals = Nudge.decimals(step)
+        self.valueText = valueText ?? { String(format: "%.\(decimals)f", $0) }
     }
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 6) {
             Text(title)
                 .frame(width: 70, alignment: .leading)
-            Slider(value: $value, in: range)
+            NudgeButton(systemImage: "minus", label: "Decrease \(title)") { nudge(-1) }
+                .disabled(value <= range.lowerBound)
+            Slider(value: snapped, in: range)
                 .tint(tint)
                 .accessibilityLabel(title)
                 .accessibilityValue(valueText(value))
+            NudgeButton(systemImage: "plus", label: "Increase \(title)") { nudge(1) }
+                .disabled(value >= range.upperBound)
             Text(valueText(value))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
                 .frame(width: valueWidth, alignment: .trailing)
+        }
+    }
+
+    // Snapping in the binding (not Slider's `step:`) keeps the track free of tick marks.
+    private var snapped: Binding<Double> {
+        Binding(
+            get: { value },
+            set: { value = Nudge.apply($0, step: step, steps: 0, range: range) }
+        )
+    }
+
+    private func nudge(_ steps: Int) {
+        value = Nudge.apply(value, step: step, steps: steps, range: range)
+    }
+}
+
+/// The small - / + beside each slider. Holding it repeats, like the Windows app.
+private struct NudgeButton: View {
+    let systemImage: String
+    let label: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 9, weight: .bold))
+                .frame(width: 18, height: 20)
+                .contentShape(.rect)
+        }
+        .buttonStyle(NudgeButtonStyle())
+        .buttonRepeatBehavior(.enabled)
+        .accessibilityLabel(label)
+    }
+
+    private struct NudgeButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            NudgeButtonBody(configuration: configuration)
+        }
+    }
+
+    private struct NudgeButtonBody: View {
+        let configuration: ButtonStyleConfiguration
+        @State private var hovering = false
+        @Environment(\.isEnabled) private var isEnabled
+
+        var body: some View {
+            configuration.label
+                .foregroundStyle(!isEnabled ? AnyShapeStyle(.tertiary)
+                                 : configuration.isPressed ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
+                .background(highlight, in: .rect(cornerRadius: 5, style: .continuous))
+                .onHover { hovering = $0 }
+        }
+
+        private var highlight: AnyShapeStyle {
+            guard isEnabled else { return AnyShapeStyle(.clear) }
+            if configuration.isPressed { return AnyShapeStyle(.fill.secondary) }
+            if hovering { return AnyShapeStyle(.fill.tertiary) }
+            return AnyShapeStyle(.clear)
         }
     }
 }

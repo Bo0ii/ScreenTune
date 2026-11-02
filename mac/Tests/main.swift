@@ -209,5 +209,39 @@ do {
     check(store.legacySettings()?.gamma == DisplaySettings.gammaRange.upperBound, "old values are clamped")
 }
 
+// MARK: - Fine steps (same cases as windows/tests/ScreenTune.Core.Tests/NudgeTests.cs)
+
+do {
+    check(Nudge.fine == 0.001 && Nudge.warmth == 1, "one step is 0.001, warmth 1K")
+    check(Nudge.decimals(0.001) == 3 && Nudge.decimals(0.01) == 2 && Nudge.decimals(10) == 0 && Nudge.decimals(1) == 0,
+          "decimals show exactly one step")
+
+    check(Nudge.apply(0.50, step: 0.01, steps: 1, range: DisplaySettings.midRange) == 0.51, "one step up")
+    check(Nudge.apply(0.50, step: 0.01, steps: -1, range: DisplaySettings.contrastRange) == 0.49, "one step down")
+    check(Nudge.apply(0, step: 0.001, steps: 1, range: DisplaySettings.blackRange) == 0.001, "black moves 0.001")
+    check(Nudge.apply(3000, step: 10, steps: 1, range: DisplaySettings.temperatureRange) == 3010, "coarse step")
+    check(Nudge.apply(2.22, step: 0.001, steps: 1, range: DisplaySettings.gammaRange) == 2.221, "gamma moves 0.001")
+    check(Nudge.apply(2.2199999999999998, step: 0.001, steps: -1, range: DisplaySettings.gammaRange) == 2.219,
+          "float noise on the stored value does not skip a step")
+    check(Nudge.apply(6500, step: 1, steps: -1, range: DisplaySettings.temperatureRange) == 6499, "warmth moves 1K")
+    check(Nudge.apply(0.50, step: 0.01, steps: 5, range: DisplaySettings.midRange) == 0.55, "several steps at once")
+
+    // An off-grid value is shown rounded, so a nudge moves one step from the number on screen.
+    check(Nudge.apply(1.2345, step: 0.01, steps: 1, range: DisplaySettings.midRange) == 1.24, "off-grid up")
+    check(Nudge.apply(1.2345, step: 0.01, steps: -1, range: DisplaySettings.midRange) == 1.22, "off-grid down")
+    check(Nudge.apply(0.1235, step: 0.001, steps: 0, range: DisplaySettings.blackRange) == 0.124, "zero steps snaps to the grid")
+
+    check(Nudge.apply(1.5, step: 0.001, steps: 1, range: DisplaySettings.midRange) == 1.5, "stops at the top")
+    check(Nudge.apply(0, step: 0.001, steps: -1, range: DisplaySettings.blackRange) == 0, "stops at the bottom")
+
+    var fine = 0.5
+    var exact = true
+    for i in 1...1000 {
+        fine = Nudge.apply(fine, step: 0.001, steps: 1, range: DisplaySettings.midRange)
+        if fine != ((0.5 + Double(i) * 0.001) * 1000).rounded() / 1000 { exact = false }
+    }
+    check(exact && fine == 1.5, "1000 nudges land on exact values with no drift")
+}
+
 print("\(passes) passed, \(failures) failed")
 exit(failures == 0 ? 0 : 1)

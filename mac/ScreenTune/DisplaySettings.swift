@@ -167,3 +167,30 @@ struct DisplaySettings: Codable, Equatable {
         temperature = try read(.temperature, d.temperature)
     }
 }
+
+// MARK: - Fine steps
+
+/// Fine steps for the - / + buttons and slider drags. Same steps and math as the
+/// Windows app (`Nudge.cs`). Every value lives on a grid of its step, so the number
+/// on screen is the exact value.
+enum Nudge {
+    /// One step for tone, gamma, contrast and saturation.
+    static let fine = 0.001
+    /// One step for warmth, in Kelvin.
+    static let warmth = 1.0
+
+    /// Decimal places needed to show one step.
+    static func decimals(_ step: Double) -> Int {
+        max(0, Int((-log10(step) - 1e-9).rounded(.up)))
+    }
+
+    /// Moves `value` by `steps` steps, clamped to the range. An off-grid value first
+    /// rounds to the nearest grid line, the same way it is shown, so a nudge always
+    /// moves one step from the number on screen.
+    static func apply(_ value: Double, step: Double, steps: Int, range: ClosedRange<Double>) -> Double {
+        let line = (value / step).rounded(.toNearestOrAwayFromZero) + Double(steps)
+        let scale = pow(10, Double(decimals(step)))
+        let snapped = (line * step * scale).rounded() / scale
+        return min(max(snapped, range.lowerBound), range.upperBound)
+    }
+}
